@@ -1,0 +1,71 @@
+# Loop Engineer configuration
+# Docs: docs/configuration.md
+version: 1
+
+project:
+  root: .
+  default_branch: main
+
+workflow:
+  name: feature-development
+  max_cycles: 3
+  max_runtime_minutes: 60
+  stop_on_no_progress: true
+  require_human_approval_before_apply: false
+
+roles:
+  analyst:
+    provider: codex
+    model: default
+    permissions: read-only
+
+  planner:
+    provider: claude
+    model: default
+    permissions: read-only
+
+  implementer:
+    provider: codex
+    model: default
+    permissions: workspace-write
+
+  reviewer:
+    provider: claude
+    model: default
+    permissions: read-only
+
+  tester:
+    provider: local
+    permissions: predefined-commands
+
+  fixer:
+    provider: codex
+    model: default
+    permissions: workspace-write
+
+  final_judge:
+    provider: claude
+    model: default
+    permissions: read-only
+
+quality_gates:
+  require_tests_pass: true
+  require_clean_review: true
+  block_severities:
+    - critical
+    - high
+
+# Only these exact commands may be executed by the tester role.
+commands:
+  install: "npm ci"
+  build: "npm run build"
+  test: "npm test"
+  lint: "npm run lint"
+  typecheck: "npm run typecheck"
+
+security:
+  network_access: false
+  allow_package_install: false
+  allow_commit: false
+  allow_push: false
+  redact_secrets: true

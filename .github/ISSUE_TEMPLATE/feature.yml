@@ -1,0 +1,25 @@
+name: Feature request
+description: Propose a scoped product or workflow change
+title: '[Feature]: '
+labels: [enhancement]
+body:
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: Name the user, task and current constraint.
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Permission and security impact
+      description: Explain any new filesystem, process, network or provider authority.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true
