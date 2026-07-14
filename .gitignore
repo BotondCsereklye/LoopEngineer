@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+coverage/
+
+# Loop Engineer runtime data (runs, worktrees, caches) — never version these
+.loop-engineer/
+
+# OS / editor
+.DS_Store
+*.log
+.idea/
+.vscode/
