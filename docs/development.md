@@ -9,6 +9,7 @@ npm run typecheck
 npm test
 npm run test:coverage
 npm run build
+npm run pack:check
 npm run format:check
 ```
 
@@ -23,3 +24,5 @@ node dist/index.js --help
 node dist/index.js doctor
 node dist/index.js run --dry-run --task "Smoke test"
 ```
+
+Maintainers should follow the [npm publishing guide](publishing.md) before creating a release tag.

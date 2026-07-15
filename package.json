@@ -13,6 +13,9 @@
   "bugs": {
     "url": "https://github.com/BotondCsereklye/LoopEngineer/issues"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=20"
   },
@@ -41,6 +44,9 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node scripts/copy-gui-assets.mjs",
+    "pack:check": "npm run build && node scripts/verify-package.mjs",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run test:coverage && npm run pack:check",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",

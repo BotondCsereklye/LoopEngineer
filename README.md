@@ -238,6 +238,7 @@ Each real run starts from the current commit and creates:
 | [Configuration](docs/configuration.md) | Schema, commands and quality gates           |
 | [Security](docs/security.md)           | Process, prompt, credential and Git controls |
 | [Development](docs/development.md)     | Build, test and contribution workflow        |
+| [Publishing](docs/publishing.md)       | npm package checks and release procedure     |
 | [Roadmap](docs/roadmap.md)             | Planned scope and exclusions                 |
 
 ## Limitations
