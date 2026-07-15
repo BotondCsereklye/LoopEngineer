@@ -4,6 +4,10 @@ All notable changes will appear in this file. The project follows Keep a Changel
 
 ## [Unreleased]
 
+### Added
+
+- Repeatable npm package verification and a maintainer publishing guide.
+
 ## [0.1.0] - 2026-07-15
 
 First public release.
