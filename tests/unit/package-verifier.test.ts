@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 // Build tooling stays in scripts/ and does not ship as a TypeScript library.
 // @ts-expect-error The verifier is an ESM build script with no declaration file.
-import { validatePackManifest } from '../../scripts/verify-package.mjs';
+import * as packageVerifier from '../../scripts/verify-package.mjs';
+
+const { npmPublishNeedsPackFallback, validatePackageMetadata, validatePackManifest } =
+  packageVerifier;
 
 const validManifest = {
   name: 'loop-engineer',
@@ -19,6 +22,33 @@ const validManifest = {
 };
 
 describe('npm package verifier', () => {
+  it('falls back to a pack dry run when the version already exists on npm', () => {
+    expect(
+      npmPublishNeedsPackFallback({
+        status: 1,
+        stdout: '',
+        stderr: 'npm error You cannot publish over the previously published versions: 0.1.0.',
+      }),
+    ).toBe(true);
+    expect(
+      npmPublishNeedsPackFallback({
+        status: 1,
+        stdout: '',
+        stderr: 'npm error code E403\nnpm error Two-factor authentication is required.',
+      }),
+    ).toBe(false);
+  });
+
+  it('requires the canonical npm binary path', () => {
+    expect(() =>
+      validatePackageMetadata({
+        name: 'loop-engineer',
+        version: '0.1.0',
+        bin: { loopeng: './dist/index.js' },
+      }),
+    ).toThrow(/dist\/index\.js without a leading/);
+  });
+
   it('accepts the publishable package contract', () => {
     expect(() => validatePackManifest(validManifest)).not.toThrow();
   });

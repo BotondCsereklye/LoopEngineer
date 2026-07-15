@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* global process */
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -56,8 +56,25 @@ export function validatePackManifest(manifest) {
   );
 }
 
+export function validatePackageMetadata(packageJson) {
+  assert(packageJson.name === 'loop-engineer', 'package.json must name loop-engineer.');
+  assert(typeof packageJson.version === 'string', 'package.json must define a version.');
+  assert(
+    packageJson.bin?.loopeng === 'dist/index.js',
+    'package.json bin.loopeng must use dist/index.js without a leading ./ for npm publish.',
+  );
+}
+
+export function npmPublishNeedsPackFallback(result) {
+  const output = `${result.stdout ?? ''}\n${result.stderr ?? ''}`;
+  return (
+    result.status !== 0 && /cannot publish over the previously published versions/i.test(output)
+  );
+}
+
 export function verifyEntrypoint(root = process.cwd()) {
   const packageJson = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
+  validatePackageMetadata(packageJson);
   const relativeEntrypoint = packageJson.bin?.loopeng;
   assert(typeof relativeEntrypoint === 'string', 'package.json must define the loopeng binary.');
 
@@ -81,13 +98,23 @@ export function verifyEntrypoint(root = process.cwd()) {
 }
 
 function main() {
-  const output = execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], {
+  const publishResult = spawnSync('npm', ['publish', '--dry-run', '--json', '--ignore-scripts'], {
     encoding: 'utf8',
   });
-  const manifests = JSON.parse(output);
-  assert(manifests.length === 1, `Expected one package manifest, received ${manifests.length}.`);
+  const result = npmPublishNeedsPackFallback(publishResult)
+    ? spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], {
+        encoding: 'utf8',
+      })
+    : publishResult;
+  const npmWarnings = `${publishResult.stderr ?? ''}\n${result.stderr ?? ''}`;
+  assert(result.status === 0, `npm publish --dry-run failed:\n${result.stderr.trim()}`);
+  assert(
+    !npmWarnings.includes('auto-corrected') && !npmWarnings.includes('invalid and removed'),
+    `npm would rewrite package.json during publish:\n${npmWarnings.trim()}`,
+  );
 
-  const manifest = manifests[0];
+  const parsedManifest = JSON.parse(result.stdout);
+  const manifest = Array.isArray(parsedManifest) ? parsedManifest[0] : parsedManifest;
   validatePackManifest(manifest);
   const { version } = verifyEntrypoint();
   const size = new Intl.NumberFormat('en', { maximumFractionDigits: 1 }).format(
