@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { configSchema, type LoopEngineerConfig } from '../config/schema.js';
 import { SEVERITIES } from '../domain/types.js';
+import { isProviderSelectionSupported, REASONING_EFFORTS } from '../providers/catalog.js';
 import { checkCommandStructure } from '../security/command-policy.js';
 
 export const GUI_AGENT_ROLES = [
@@ -16,8 +17,18 @@ const roleSelectionSchema = z
   .object({
     provider: z.enum(['claude', 'codex']),
     model: z.string().trim().min(1).max(100).default('default'),
+    effort: z.enum(REASONING_EFFORTS),
   })
-  .strict();
+  .strict()
+  .superRefine((selection, context) => {
+    if (!isProviderSelectionSupported(selection.provider, selection.model, selection.effort)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['model'],
+        message: `Model "${selection.model}" with intelligence "${selection.effort}" is not supported by ${selection.provider}`,
+      });
+    }
+  });
 
 const commandSchema = z
   .string()
@@ -86,6 +97,7 @@ export function buildRunConfig(
         ...baseConfig.roles[role],
         provider: request.roles[role].provider,
         model: request.roles[role].model,
+        effort: request.roles[role].effort,
       },
     ]),
   ) as Pick<LoopEngineerConfig['roles'], (typeof GUI_AGENT_ROLES)[number]>;
@@ -104,6 +116,7 @@ export function buildRunConfig(
         ...baseConfig.roles.tester,
         provider: 'local',
         model: 'default',
+        effort: undefined,
         permissions: 'predefined-commands',
       },
     },

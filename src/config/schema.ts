@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { PERMISSION_MODES, PROVIDER_IDS, SEVERITIES } from '../domain/types.js';
+import { REASONING_EFFORTS } from '../providers/catalog.js';
 
 const providerId = z.enum(PROVIDER_IDS);
 const permissionMode = z.enum(PERMISSION_MODES);
@@ -9,6 +10,7 @@ const roleConfigSchema = z
   .object({
     provider: providerId,
     model: z.string().min(1).default('default'),
+    effort: z.enum(REASONING_EFFORTS).optional(),
     permissions: permissionMode,
   })
   .strict();

@@ -26,13 +26,28 @@ export function defaultConfig(): LoopEngineerConfig {
       require_human_approval_before_apply: false,
     },
     roles: {
-      analyst: { provider: 'codex', model: 'default', permissions: 'read-only' },
-      planner: { provider: 'claude', model: 'default', permissions: 'read-only' },
-      implementer: { provider: 'codex', model: 'default', permissions: 'workspace-write' },
-      reviewer: { provider: 'claude', model: 'default', permissions: 'read-only' },
+      analyst: { provider: 'codex', model: 'default', effort: 'auto', permissions: 'read-only' },
+      planner: { provider: 'claude', model: 'default', effort: 'auto', permissions: 'read-only' },
+      implementer: {
+        provider: 'codex',
+        model: 'default',
+        effort: 'auto',
+        permissions: 'workspace-write',
+      },
+      reviewer: { provider: 'claude', model: 'default', effort: 'auto', permissions: 'read-only' },
       tester: { provider: 'local', model: 'default', permissions: 'predefined-commands' },
-      fixer: { provider: 'codex', model: 'default', permissions: 'workspace-write' },
-      final_judge: { provider: 'claude', model: 'default', permissions: 'read-only' },
+      fixer: {
+        provider: 'codex',
+        model: 'default',
+        effort: 'auto',
+        permissions: 'workspace-write',
+      },
+      final_judge: {
+        provider: 'claude',
+        model: 'default',
+        effort: 'auto',
+        permissions: 'read-only',
+      },
     },
     quality_gates: {
       require_tests_pass: true,
@@ -79,21 +94,25 @@ roles:
   analyst:
     provider: codex
     model: default
+    effort: auto
     permissions: read-only
 
   planner:
     provider: claude
     model: default
+    effort: auto
     permissions: read-only
 
   implementer:
     provider: codex
     model: default
+    effort: auto
     permissions: workspace-write
 
   reviewer:
     provider: claude
     model: default
+    effort: auto
     permissions: read-only
 
   tester:
@@ -103,11 +122,13 @@ roles:
   fixer:
     provider: codex
     model: default
+    effort: auto
     permissions: workspace-write
 
   final_judge:
     provider: claude
     model: default
+    effort: auto
     permissions: read-only
 
 quality_gates:

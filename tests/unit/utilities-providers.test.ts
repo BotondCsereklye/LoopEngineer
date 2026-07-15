@@ -201,14 +201,17 @@ describe('provider adapters', () => {
       role: 'implementer' as const,
       permissionMode: 'workspace-write' as const,
       model: 'custom-model',
+      effort: 'xhigh' as const,
     };
     const claudeWrite = await claude.run(writeRequest);
     expect(claudeWrite.sanitizedCommand).toContain('--permission-mode acceptEdits');
     expect(claudeWrite.sanitizedCommand).toContain('--model custom-model');
+    expect(claudeWrite.sanitizedCommand).toContain('--effort xhigh');
     expect(claudeWrite.sanitizedCommand).not.toContain('Bash');
     const codexWrite = await codex.run(writeRequest);
     expect(codexWrite.sanitizedCommand).toContain('--sandbox workspace-write');
     expect(codexWrite.sanitizedCommand).toContain('--model custom-model');
+    expect(codexWrite.sanitizedCommand).toContain('model_reasoning_effort="xhigh"');
     expect((await new ClaudeProvider('/definitely/missing').checkAvailability()).installed).toBe(
       false,
     );

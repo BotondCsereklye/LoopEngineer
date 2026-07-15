@@ -5,6 +5,11 @@ node_modules/
 dist/
 coverage/
 
+# Demo renderer cache
+.venv-demo/
+__pycache__/
+*.pyc
+
 # Loop Engineer runtime data (runs, worktrees, caches) — never version these
 .loop-engineer/
 

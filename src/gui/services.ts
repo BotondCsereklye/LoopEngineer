@@ -5,9 +5,11 @@ import { loadConfig } from '../config/loader.js';
 import { ConfigurationError } from '../domain/errors.js';
 import { isGitRepository, repositoryRoot } from '../git/repository.js';
 import { createDefaultRegistry } from '../providers/registry.js';
+import { ProviderAuthManager } from '../providers/auth.js';
 import { orchestrate } from '../workflow/orchestrator.js';
 import { buildRunConfig } from './schema.js';
 import type { GuiServices } from './server.js';
+import { PROVIDER_MODEL_CATALOG } from '../providers/catalog.js';
 
 export async function createDefaultGuiServices(
   cwd: string,
@@ -20,11 +22,12 @@ export async function createDefaultGuiServices(
     throw new ConfigurationError('Project root is not a Git repository');
   }
   const root = await repositoryRoot(configuredRoot);
+  const auth = new ProviderAuthManager({ cwd: root });
 
   return {
     async bootstrap() {
       const [doctor, reports] = await Promise.all([runDoctor(root), listRunReports(root)]);
-      return { root, config: baseConfig, doctor, reports };
+      return { root, config: baseConfig, doctor, reports, modelCatalog: PROVIDER_MODEL_CATALOG };
     },
     async run(request, signal, logger) {
       return orchestrate({
@@ -39,6 +42,15 @@ export async function createDefaultGuiServices(
     },
     report(runId) {
       return readRunReport(root, runId);
+    },
+    providerConnections() {
+      return auth.connections();
+    },
+    connectProvider(provider) {
+      return auth.connect(provider);
+    },
+    close() {
+      return auth.close();
     },
   };
 }

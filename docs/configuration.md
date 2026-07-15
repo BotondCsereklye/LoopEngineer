@@ -14,6 +14,8 @@ Role permissions have fixed safety constraints:
 
 The tester must use `local` in normal configuration. Tests may use the internal `fake` provider.
 
+LLM role entries accept `model` and an optional `effort`. Supported effort values are `auto`, `low`, `medium`, `high`, `xhigh`, `max` and `ultra`; the chosen provider and model determine which values are valid in the GUI. `auto` leaves the provider default unchanged. Claude receives the value through `--effort`; Codex receives it as `model_reasoning_effort`. The local tester does not use a model or effort.
+
 Quality gates can require passing commands, reviewer approval and zero findings at configured severities. The default blocks `critical` and `high`.
 
 The `install` command records a detected install command for future use. The MVP does not run it when `allow_package_install` is false, which is the default.

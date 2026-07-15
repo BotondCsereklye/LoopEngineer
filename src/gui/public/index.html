@@ -49,6 +49,24 @@
       </section>
 
       <form id="run-form" class="builder" aria-label="Configure a new loop">
+        <section class="card providers-card" aria-labelledby="providers-title">
+          <div class="section-heading">
+            <div>
+              <span class="step">CONNECT</span>
+              <h2 id="providers-title">Provider connections</h2>
+            </div>
+            <button id="refresh-providers" class="text-button" type="button">Refresh</button>
+          </div>
+          <p class="section-copy">
+            Sign in through the official Claude Code or OpenAI Codex CLI. Loop Engineer never sees
+            or stores your password, API key, OAuth code or access token.
+          </p>
+          <div id="provider-grid" class="provider-grid" aria-live="polite">
+            <div class="provider-placeholder">Checking local provider connections …</div>
+          </div>
+          <p id="provider-error" class="form-error" role="alert" hidden></p>
+        </section>
+
         <section class="card task-card" aria-labelledby="task-title">
           <div class="section-heading">
             <div>
@@ -216,6 +234,13 @@
             <h2 id="run-status-title">Current run</h2>
             <span id="run-status" class="badge idle">Ready</span>
           </div>
+          <div
+            id="run-provider-strip"
+            class="run-provider-strip"
+            aria-label="Provider readiness"
+          ></div>
+          <div id="run-issue" class="run-issue" role="alert" hidden></div>
+          <div id="active-agent" class="active-agent" aria-live="polite" hidden></div>
           <div id="run-summary" class="empty-state">No run started yet.</div>
           <ol id="event-log" class="event-log" aria-live="polite"></ol>
         </section>

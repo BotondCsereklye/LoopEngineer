@@ -1,4 +1,5 @@
 import type { PermissionMode, RoleName } from '../domain/types.js';
+import type { ReasoningEffort } from './catalog.js';
 
 export interface ProviderAvailability {
   installed: boolean;
@@ -23,6 +24,7 @@ export interface AgentRequest {
   outputSchema: string;
   timeoutMs: number;
   model?: string;
+  effort?: ReasoningEffort;
   previousHandoff?: unknown;
   signal?: AbortSignal;
 }

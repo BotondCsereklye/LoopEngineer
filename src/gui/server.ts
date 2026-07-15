@@ -4,11 +4,18 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import type { AddressInfo } from 'node:net';
 import type { LoopEngineerConfig } from '../config/schema.js';
 import type { DoctorCheck } from '../cli/commands/doctor.js';
-import type { Logger } from '../logging/logger.js';
+import type { Logger, RunActivity } from '../logging/logger.js';
 import type { OrchestratorResult } from '../workflow/orchestrator.js';
 import type { RunReport } from '../reports/types.js';
 import { redactDeep, redactSecrets } from '../security/secret-redactor.js';
+import {
+  isProviderId,
+  type ProviderConnection,
+  type ProviderConnectResult,
+  type ProviderId,
+} from '../providers/auth.js';
 import { guiRunRequestSchema, type GuiRunRequest } from './schema.js';
+import { PROVIDER_MODEL_CATALOG, type ProviderModelCatalogEntry } from '../providers/catalog.js';
 
 const MAX_BODY_BYTES = 256 * 1024;
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1']);
@@ -18,12 +25,16 @@ export interface GuiBootstrap {
   config: LoopEngineerConfig;
   doctor: DoctorCheck[];
   reports: RunReport[];
+  modelCatalog: Record<'claude' | 'codex', ProviderModelCatalogEntry>;
 }
 
 export interface GuiServices {
   bootstrap(): Promise<GuiBootstrap>;
   run(request: GuiRunRequest, signal: AbortSignal, logger: Logger): Promise<OrchestratorResult>;
   report(runId: string): Promise<string>;
+  providerConnections(): Promise<ProviderConnection[]>;
+  connectProvider(provider: ProviderId): Promise<ProviderConnectResult>;
+  close?(): Promise<void>;
 }
 
 export interface GuiServerOptions {
@@ -48,6 +59,17 @@ interface GuiRunSnapshot {
   events: string[];
   result?: OrchestratorResult;
   error?: string;
+  task?: string;
+  active?: RunActivity;
+  lastActivity?: RunActivity;
+  issue?: GuiProviderIssue;
+}
+
+export interface GuiProviderIssue {
+  kind: 'session-limit' | 'rate-limit' | 'authentication' | 'unavailable';
+  provider?: string;
+  role?: string;
+  resetAt?: string;
 }
 
 interface Asset {
@@ -93,11 +115,19 @@ export async function createGuiServer(options: GuiServerOptions): Promise<GuiSer
     }
     if (method === 'GET' && pathname === '/api/bootstrap') {
       const bootstrap = await options.services.bootstrap();
-      sendJson(response, 200, { ...bootstrap, csrfToken });
+      sendJson(response, 200, {
+        ...bootstrap,
+        modelCatalog: bootstrap.modelCatalog ?? PROVIDER_MODEL_CATALOG,
+        csrfToken,
+      });
       return;
     }
     if (method === 'GET' && pathname === '/api/run') {
       sendJson(response, 200, snapshot);
+      return;
+    }
+    if (method === 'GET' && pathname === '/api/providers') {
+      sendJson(response, 200, await options.services.providerConnections());
       return;
     }
     if (method === 'GET' && pathname.startsWith('/api/reports/')) {
@@ -145,6 +175,7 @@ export async function createGuiServer(options: GuiServerOptions): Promise<GuiSer
         id: randomUUID(),
         status: 'running',
         startedAt: new Date().toISOString(),
+        task: parsed.data.task,
         events: [],
       };
       const logger: Logger = {
@@ -153,6 +184,13 @@ export async function createGuiServer(options: GuiServerOptions): Promise<GuiSer
         },
         warn(message) {
           snapshot = { ...snapshot, events: [...snapshot.events, redactSecrets(message)] };
+        },
+        activity(activity) {
+          const safeActivity = redactDeep(activity) as RunActivity;
+          snapshot =
+            safeActivity.state === 'thinking'
+              ? { ...snapshot, active: safeActivity }
+              : { ...snapshot, active: undefined, lastActivity: safeActivity };
         },
       };
       const controller = activeController;
@@ -164,23 +202,40 @@ export async function createGuiServer(options: GuiServerOptions): Promise<GuiSer
             status: 'completed',
             finishedAt: new Date().toISOString(),
             result,
+            active: undefined,
           };
         })
         .catch((error: unknown) => {
+          const safeMessage = redactSecrets(
+            error instanceof Error ? error.message : String(error),
+          ).slice(0, 1_000);
           snapshot = {
             ...snapshot,
             status: controller.signal.aborted ? 'cancelled' : 'failed',
             finishedAt: new Date().toISOString(),
-            error: redactSecrets(error instanceof Error ? error.message : String(error)).slice(
-              0,
-              1_000,
-            ),
+            error: safeMessage,
+            active: undefined,
+            issue: classifyProviderIssue(safeMessage),
           };
         })
         .finally(() => {
           if (activeController === controller) activeController = undefined;
         });
       sendJson(response, 202, snapshot);
+      return;
+    }
+    const providerConnectMatch = pathname.match(/^\/api\/providers\/([^/]+)\/connect$/);
+    if (method === 'POST' && providerConnectMatch) {
+      if (!isTrustedMutation(request, csrfToken, origin)) {
+        sendJson(response, 403, { error: 'Request origin or CSRF token rejected' });
+        return;
+      }
+      const provider = providerConnectMatch[1] ?? '';
+      if (!isProviderId(provider)) {
+        sendJson(response, 404, { error: 'Provider not found' });
+        return;
+      }
+      sendJson(response, 202, await options.services.connectProvider(provider));
       return;
     }
     if (method === 'POST' && pathname === '/api/cancel') {
@@ -219,11 +274,31 @@ export async function createGuiServer(options: GuiServerOptions): Promise<GuiSer
     url: origin,
     async close() {
       activeController?.abort();
+      await options.services.close?.();
       await new Promise<void>((resolve, reject) => {
         server.close((error) => (error ? reject(error) : resolve()));
       });
     },
   };
+}
+
+export function classifyProviderIssue(message: string): GuiProviderIssue | undefined {
+  const provider = message.match(/Provider "([a-z0-9_-]+)"/i)?.[1];
+  const role = message.match(/role "([a-z0-9_-]+)"/i)?.[1];
+  const resetAt = message.match(/resets?\s+(.+?)(?=\s+(?:[a-z_-]+=)?\[REDACTED\]|$)/i)?.[1]?.trim();
+  if (/session limit/i.test(message)) {
+    return { kind: 'session-limit', provider, role, ...(resetAt ? { resetAt } : {}) };
+  }
+  if (/usage limit|rate limit|quota exceeded|credit balance/i.test(message)) {
+    return { kind: 'rate-limit', provider, role, ...(resetAt ? { resetAt } : {}) };
+  }
+  if (/not logged in|not authenticated|please (log|sign) ?in|run \/login/i.test(message)) {
+    return { kind: 'authentication', provider, role };
+  }
+  if (/cannot serve requests|is unavailable/i.test(message)) {
+    return { kind: 'unavailable', provider, role };
+  }
+  return undefined;
 }
 
 async function loadAssets(): Promise<Map<string, Asset>> {

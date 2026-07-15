@@ -36,14 +36,22 @@ export class ClaudeProvider implements AgentProvider {
         details: 'Claude Code CLI not found. Install it and run `claude` once to sign in.',
       };
     }
-    // There is no official non-interactive command guaranteed to report auth
-    // state, so we do not guess (docs/providers.md).
+    // `claude auth status` is the official non-interactive status probe. Its
+    // output may contain account metadata, so only the exit code is used.
+    const auth = await runProcess({
+      command: this.binary,
+      args: ['auth', 'status', '--json'],
+      cwd: process.cwd(),
+      timeoutMs: PROBE_TIMEOUT_MS,
+    });
+    const authenticated = auth.exitCode === 0;
     return {
       installed: true,
       version: version.stdout.trim(),
-      authenticated: undefined,
-      details:
-        'Authentication status cannot be verified automatically; run `claude` once to confirm you are signed in.',
+      authenticated,
+      details: authenticated
+        ? 'Claude Code CLI is installed and logged in.'
+        : 'Claude Code CLI is installed but not logged in. Run `claude auth login --claudeai`.',
     };
   }
 
@@ -60,6 +68,9 @@ export class ClaudeProvider implements AgentProvider {
 
     if (request.model && request.model !== 'default') {
       args.push('--model', request.model);
+    }
+    if (request.effort && request.effort !== 'auto') {
+      args.push('--effort', request.effort);
     }
 
     const result = await runProcess({

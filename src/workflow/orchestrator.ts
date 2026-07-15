@@ -286,6 +286,7 @@ function roleOptions(
     outputSchema,
     timeoutMs: AGENT_TIMEOUT_MS,
     signal: options.signal,
+    logger: options.logger,
   };
 }
 
@@ -369,9 +370,29 @@ async function executeStructuredRole<T, TInput>(
   options: RoleRunOptions,
   schema: ZodType<T, ZodTypeDef, TInput>,
 ): Promise<RoleRunResult<T>> {
+  const startedAt = new Date().toISOString();
+  const activity = {
+    role: options.role,
+    provider: options.provider.id,
+    model: options.roleConfig.model,
+    effort: options.roleConfig.effort ?? 'auto',
+    startedAt,
+  } as const;
+  options.logger?.activity?.({ ...activity, state: 'thinking' });
   try {
-    return await runStructuredRole(options, schema);
+    const result = await runStructuredRole(options, schema);
+    options.logger?.activity?.({
+      ...activity,
+      state: 'completed',
+      finishedAt: new Date().toISOString(),
+    });
+    return result;
   } catch (error) {
+    options.logger?.activity?.({
+      ...activity,
+      state: 'failed',
+      finishedAt: new Date().toISOString(),
+    });
     if (error instanceof ProviderOutputError) {
       await store.writeText(`raw-output-${artifactLabel}.txt`, error.rawOutput);
     }
