@@ -57,11 +57,11 @@ quality_gates:
 
 # Only these exact commands may be executed by the tester role.
 commands:
-  install: "npm ci"
-  build: "npm run build"
-  test: "npm test"
-  lint: "npm run lint"
-  typecheck: "npm run typecheck"
+  install: 'npm ci'
+  build: 'npm run build'
+  test: 'npm test'
+  lint: 'npm run lint'
+  typecheck: 'npm run typecheck'
 
 security:
   network_access: false

@@ -14,6 +14,7 @@ import { runDoctor } from './commands/doctor.js';
 import { initProject } from './commands/init.js';
 import { listRunReports, readRunReport } from './commands/status.js';
 import { renderDoctor, renderRunSummary } from './output/terminal.js';
+import { startGui } from '../gui/start.js';
 
 export function createCli(): Command {
   const program = new Command()
@@ -40,6 +41,21 @@ export function createCli(): Command {
     .description('Check local prerequisites and provider CLIs')
     .action(async () => {
       console.log(renderDoctor(await runDoctor(process.cwd())));
+    });
+
+  program
+    .command('gui')
+    .description('Open the local Loop Engineer dashboard')
+    .option('--config <path>', 'configuration file', CONFIG_FILE_NAME)
+    .option('--port <number>', 'local dashboard port', parsePort, 4317)
+    .option('--no-open', 'do not open the browser automatically')
+    .action(async (flags: { config: string; port: number; open: boolean }) => {
+      await startGui({
+        cwd: process.cwd(),
+        config: flags.config,
+        port: flags.port,
+        open: flags.open,
+      });
     });
 
   program
@@ -115,6 +131,14 @@ export function createCli(): Command {
     });
 
   return program;
+}
+
+function parsePort(value: string): number {
+  const port = Number(value);
+  if (!Number.isInteger(port) || port < 1 || port > 65_535) {
+    throw new ConfigurationError('GUI port must be an integer between 1 and 65535');
+  }
+  return port;
 }
 
 export async function runCli(argv = process.argv): Promise<void> {

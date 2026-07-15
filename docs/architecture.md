@@ -8,4 +8,4 @@ Zod schemas form the boundary between phases. A phase cannot consume free-form c
 
 Reports derive from validated handoffs, Git numstat output and process results. The final judge cannot override failed objective gates because the orchestrator clamps its decision.
 
-The MVP keeps files on disk under `.loop-engineer/`. Loop Engineer runs no database, daemon or service of its own. Provider CLIs may use their vendor networks under their own sessions and policies.
+The MVP keeps files on disk under `.loop-engineer/` and runs no database or daemon. The optional `loopeng gui` command starts an ephemeral loopback-only HTTP server for the lifetime of the command. Provider CLIs may use their vendor networks under their own sessions and policies.

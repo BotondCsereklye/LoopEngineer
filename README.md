@@ -45,16 +45,20 @@ Run these commands inside a Git repository with at least one commit:
 ```bash
 loopeng init
 loopeng doctor
-loopeng run --task "Add input validation to the settings parser"
+loopeng gui
 ```
 
-Inspect the report and worktree path printed at the end. Loop Engineer does not commit or push.
+The dashboard opens at `http://127.0.0.1:4317`. Configure the task, role providers, models, quality gates and test commands, then start with a dry run. Loop Engineer does not commit or push.
+
+Prefer the terminal? Run `loopeng run --task "Add input validation to the settings parser"` instead.
 
 ## Commands
 
 ```text
 loopeng init
 loopeng doctor
+loopeng gui
+loopeng gui --no-open --port 4318
 loopeng run --task "Add password reset"
 loopeng run --task-file task.md
 loopeng run --config loop-engineer.yml --task "Fix the parser"
@@ -63,6 +67,8 @@ loopeng status
 loopeng report <run-id>
 loopeng clean [--force]
 ```
+
+`gui` starts a local-only dashboard bound to `127.0.0.1`. It reads the same `loop-engineer.yml` as the CLI and keeps the role permission boundaries fixed. Stop it with `Ctrl+C`.
 
 `doctor` checks Node, Git, repository state, worktree support, provider installation, command detection, instruction files and write access. It reports an unknown authentication state when an official CLI offers no dependable probe.
 
