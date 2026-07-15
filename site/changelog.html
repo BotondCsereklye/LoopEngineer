@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loop Engineer Changelog – Releases and Notable Changes</title>
+    <meta
+      name="description"
+      content="Release history of Loop Engineer, the local-first multi-agent orchestrator for Claude Code and Codex CLI. Current release: v0.1.0."
+    />
+    <link rel="canonical" href="https://botondcsereklye.github.io/LoopEngineer/changelog.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Loop Engineer Changelog – Releases and Notable Changes" />
+    <meta
+      property="og:description"
+      content="Release history of Loop Engineer, the local-first multi-agent orchestrator for Claude Code and Codex CLI."
+    />
+    <meta
+      property="og:url"
+      content="https://botondcsereklye.github.io/LoopEngineer/changelog.html"
+    />
+    <meta
+      property="og:image"
+      content="https://botondcsereklye.github.io/LoopEngineer/assets/social-preview.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="inner">
+        <a class="brand" href="./">Loop <span>Engineer</span></a>
+        <nav>
+          <a href="./">Home</a>
+          <a href="how-it-works.html">How it works</a>
+          <a href="installation.html">Installation</a>
+          <a href="security.html">Security</a>
+          <a href="comparison.html">Comparison</a>
+          <a href="faq.html">FAQ</a>
+          <a href="changelog.html" aria-current="page">Changelog</a>
+          <a href="documentation.html">Docs</a>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <h1>Changelog</h1>
+      <p class="lead">
+        Loop Engineer follows Keep a Changelog and Semantic Versioning. The canonical changelog
+        lives in the repository:
+        <a href="https://github.com/BotondCsereklye/LoopEngineer/blob/main/CHANGELOG.md"
+          >CHANGELOG.md</a
+        >.
+      </p>
+
+      <h2 id="v0-1-0">v0.1.0 — July 2026</h2>
+      <p>First public release.</p>
+      <ul>
+        <li>Local-first Claude Code, Codex CLI, and predefined-command providers.</li>
+        <li>Structured role handoffs, bounded correction loops, and objective quality gates.</li>
+        <li>Detached Git worktrees, redacted run reports, and safe cleanup.</li>
+        <li>
+          <code>init</code>, <code>doctor</code>, <code>run</code>, <code>status</code>,
+          <code>report</code>, and <code>clean</code> commands.
+        </li>
+        <li>
+          <code>gui</code> command: local-only dashboard (loopback bind, CSRF token, strict CSP) to
+          configure, start, watch, and cancel runs.
+        </li>
+        <li>
+          Provider-signaled subscription/session limits are classified as "provider unavailable"
+          instead of an internal error.
+        </li>
+      </ul>
+      <p>
+        See all releases on
+        <a href="https://github.com/BotondCsereklye/LoopEngineer/releases">GitHub Releases</a>.
+      </p>
+    </main>
+    <footer class="site">
+      <div class="inner">
+        <span>© 2026 Loop Engineer · MIT License</span>
+        <span>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/discussions">Discussions</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/issues">Issues</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

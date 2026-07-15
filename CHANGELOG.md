@@ -1,8 +1,12 @@
 # Changelog
 
-All notable changes will appear in this file. The project follows Keep a Changelog and plans to use Semantic Versioning after the first public release.
+All notable changes will appear in this file. The project follows Keep a Changelog and Semantic Versioning.
 
 ## [Unreleased]
+
+## [0.1.0] - 2026-07-15
+
+First public release.
 
 ### Added
 

@@ -1,0 +1,24 @@
+# Loop Engineer
+
+> Loop Engineer is an open-source, local-first multi-agent software-engineering
+> orchestrator for Claude Code, Codex CLI, and isolated Git worktrees.
+
+Loop Engineer coordinates the official Claude Code (Anthropic) and Codex CLI
+(OpenAI) command-line tools together with local test tooling in one controlled
+development loop. Each agent gets one role (analyst, planner, implementer,
+tester, reviewer, fixer, final judge), every handoff is schema-validated, and
+writing agents edit only an isolated Git worktree. Tests and review gates
+decide when the loop stops. Loop Engineer never commits, never pushes, and
+requires no API keys — provider login stays inside the official CLIs.
+
+License: MIT. Language: TypeScript (Node.js 20+). Version: 0.1.0.
+
+## Docs
+
+- [Homepage](https://botondcsereklye.github.io/LoopEngineer/): overview and quick start
+- [How it works](https://botondcsereklye.github.io/LoopEngineer/how-it-works.html): roles, workflow, quality gates
+- [Installation](https://botondcsereklye.github.io/LoopEngineer/installation.html): requirements and setup
+- [Security](https://botondcsereklye.github.io/LoopEngineer/security.html): isolation, credentials, Git safety
+- [Comparison](https://botondcsereklye.github.io/LoopEngineer/comparison.html): vs. plain Claude Code sessions and Codex CLI
+- [FAQ](https://botondcsereklye.github.io/LoopEngineer/faq.html): common questions
+- [Repository](https://github.com/BotondCsereklye/LoopEngineer): source code, issues, discussions

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loop Engineer Security Model – Isolation, Credentials, and Git Safety</title>
+    <meta
+      name="description"
+      content="Loop Engineer's security boundaries: isolated Git worktrees, read-only agent roles, allowlisted commands, no credential handling, secret redaction, and no auto-commit or push."
+    />
+    <link rel="canonical" href="https://botondcsereklye.github.io/LoopEngineer/security.html" />
+    <meta property="og:type" content="article" />
+    <meta
+      property="og:title"
+      content="Loop Engineer Security Model – Isolation, Credentials, and Git Safety"
+    />
+    <meta
+      property="og:description"
+      content="Loop Engineer's security boundaries: isolated Git worktrees, read-only agent roles, allowlisted commands, no credential handling, and no auto-commit or push."
+    />
+    <meta
+      property="og:url"
+      content="https://botondcsereklye.github.io/LoopEngineer/security.html"
+    />
+    <meta
+      property="og:image"
+      content="https://botondcsereklye.github.io/LoopEngineer/assets/social-preview.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="inner">
+        <a class="brand" href="./">Loop <span>Engineer</span></a>
+        <nav>
+          <a href="./">Home</a>
+          <a href="how-it-works.html">How it works</a>
+          <a href="installation.html">Installation</a>
+          <a href="security.html" aria-current="page">Security</a>
+          <a href="comparison.html">Comparison</a>
+          <a href="faq.html">FAQ</a>
+          <a href="changelog.html">Changelog</a>
+          <a href="documentation.html">Docs</a>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <h1>Security model</h1>
+      <p class="lead">
+        Loop Engineer is built around explicit boundaries: what each agent can read, what it can
+        write, which commands can run, and what never leaves your machine.
+      </p>
+
+      <h2>How Loop Engineer isolates code changes</h2>
+      <ul>
+        <li>
+          Writing roles (implementer, fixer) edit only a managed, detached Git worktree under
+          <code>.loop-engineer/worktrees/</code>.
+        </li>
+        <li>
+          Analyst, planner, reviewer, and final judge run with read-only provider permissions.
+        </li>
+        <li>
+          Loop Engineer never commits, never pushes, never force-resets, and never runs a
+          destructive clean command.
+        </li>
+        <li>
+          <code>loopeng clean</code> removes only marked managed worktrees and preserves dirty
+          worktrees unless you pass <code>--force</code>.
+        </li>
+      </ul>
+
+      <h2>Command execution</h2>
+      <p>
+        The local tester runs only configured allowlisted commands without a shell. It rejects
+        chaining, pipes, redirects, command substitution, denied binaries, and destructive Git
+        commands. The configuration schema rejects unknown keys, invalid permissions, and unsafe
+        tester assignments.
+      </p>
+
+      <h2>Credentials</h2>
+      <p>
+        Provider login stays inside the official Claude Code and Codex CLIs. The local dashboard can
+        only start those login flows; it has no password, API-key, OAuth-code, or access-token
+        field, and the dashboard API never handles credentials. The GUI binds to loopback only, uses
+        a CSRF token, and ships a strict Content Security Policy.
+      </p>
+
+      <h2>Prompt and data handling</h2>
+      <ul>
+        <li>
+          Repository content enters prompts inside untrusted-data fences, so file contents are
+          treated as data rather than instructions.
+        </li>
+        <li>Logs and reports redact common key, token, and password formats before storage.</li>
+        <li>Structured role handoffs are schema-validated before they become workflow state.</li>
+      </ul>
+
+      <h2>Honest limitations</h2>
+      <div class="note">
+        Redaction cannot recognize every custom secret format. Keep
+        <code>.loop-engineer/</code> private and treat run reports like build logs. The context
+        firewall and redactor reduce risk; they cannot prove provider behavior. Review generated
+        changes before merging them.
+      </div>
+      <p>
+        The complete security documentation, including the threat model and reporting process, lives
+        in the repository:
+        <a href="https://github.com/BotondCsereklye/LoopEngineer/blob/main/docs/security.md"
+          >docs/security.md</a
+        >
+        and
+        <a href="https://github.com/BotondCsereklye/LoopEngineer/blob/main/SECURITY.md"
+          >SECURITY.md</a
+        >.
+      </p>
+    </main>
+    <footer class="site">
+      <div class="inner">
+        <span>© 2026 Loop Engineer · MIT License</span>
+        <span>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/discussions">Discussions</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/issues">Issues</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

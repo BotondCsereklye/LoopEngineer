@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loop Engineer – Local-first Multi-Agent Orchestrator for Claude Code and Codex</title>
+    <meta
+      name="description"
+      content="Loop Engineer is an open-source orchestrator that assigns Claude Code, Codex CLI and local tools to controlled software-engineering roles inside isolated Git worktrees."
+    />
+    <link rel="canonical" href="https://botondcsereklye.github.io/LoopEngineer/" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Loop Engineer – Local-first Multi-Agent Orchestrator for Claude Code and Codex"
+    />
+    <meta
+      property="og:description"
+      content="Loop Engineer is an open-source, local-first multi-agent software-engineering orchestrator for Claude Code, Codex CLI, and isolated Git worktrees."
+    />
+    <meta property="og:url" content="https://botondcsereklye.github.io/LoopEngineer/" />
+    <meta
+      property="og:image"
+      content="https://botondcsereklye.github.io/LoopEngineer/assets/social-preview.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="assets/style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Loop Engineer",
+        "operatingSystem": "macOS, Linux, Windows",
+        "applicationCategory": "DeveloperApplication",
+        "description": "Loop Engineer is an open-source, local-first multi-agent software-engineering orchestrator for Claude Code, Codex CLI, and isolated Git worktrees.",
+        "url": "https://botondcsereklye.github.io/LoopEngineer/",
+        "softwareVersion": "0.1.0",
+        "license": "https://opensource.org/licenses/MIT",
+        "codeRepository": "https://github.com/BotondCsereklye/LoopEngineer",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+  </head>
+  <body>
+    <header class="site">
+      <div class="inner">
+        <a class="brand" href="./">Loop <span>Engineer</span></a>
+        <nav>
+          <a href="./" aria-current="page">Home</a>
+          <a href="how-it-works.html">How it works</a>
+          <a href="installation.html">Installation</a>
+          <a href="security.html">Security</a>
+          <a href="comparison.html">Comparison</a>
+          <a href="faq.html">FAQ</a>
+          <a href="changelog.html">Changelog</a>
+          <a href="documentation.html">Docs</a>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <section class="hero">
+        <h1>Local-first multi-agent orchestration for Claude Code and Codex CLI</h1>
+        <p class="lead">
+          Loop Engineer is an open-source, local-first multi-agent software-engineering orchestrator
+          for Claude Code, Codex CLI, and isolated Git worktrees. It assigns each AI agent one
+          narrow role, validates every handoff, and keeps generated changes out of your branch until
+          you approve them.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="installation.html">Install</a>
+          <a class="button secondary" href="https://github.com/BotondCsereklye/LoopEngineer"
+            >View on GitHub</a
+          >
+        </div>
+      </section>
+
+      <h2 id="what-is-loop-engineer">What is Loop Engineer?</h2>
+      <p>
+        Loop Engineer coordinates the official <strong>Claude Code</strong> and
+        <strong>OpenAI Codex</strong> CLIs together with local test tooling in one controlled
+        development loop. Instead of a single long agent chat that mixes discovery, implementation,
+        testing, and approval, Loop Engineer splits those responsibilities into roles with narrow
+        contracts: analyst, planner, implementer, tester, reviewer, fixer, and final judge.
+      </p>
+      <ul class="cards">
+        <li>
+          <strong>Local-first</strong>
+          Runs entirely on your machine. No cloud account, no API keys, no telemetry. Provider login
+          stays inside the official CLIs.
+        </li>
+        <li>
+          <strong>Isolated Git worktrees</strong>
+          Writing agents edit only a detached worktree. Loop Engineer never commits and never
+          pushes.
+        </li>
+        <li>
+          <strong>Objective quality gates</strong>
+          Tests and review findings decide when the loop stops — not the model's self-assessment.
+        </li>
+        <li>
+          <strong>Validated handoffs</strong>
+          Roles exchange structured, schema-validated JSON instead of raw chat transcripts.
+        </li>
+      </ul>
+
+      <h2 id="how-does-loop-engineer-work">How does Loop Engineer work?</h2>
+      <pre><code>ANALYZE → PLAN → IMPLEMENT → TEST → REVIEW → DECIDE
+                      ↑                    |
+                      └──────── FIX ←──────┘</code></pre>
+      <p>
+        Read-only roles inspect the repository, writing roles edit an isolated worktree, and a local
+        command runner executes only allowlisted test commands. Every run ends with a Markdown
+        report, a JSON report, and a reviewable worktree. Read the full
+        <a href="how-it-works.html">workflow description</a>.
+      </p>
+
+      <h2 id="get-started">Get started</h2>
+      <pre><code>git clone https://github.com/BotondCsereklye/LoopEngineer.git
+cd LoopEngineer
+npm ci &amp;&amp; npm run build &amp;&amp; npm link
+
+loopeng init
+loopeng doctor
+loopeng gui</code></pre>
+      <p>
+        See the <a href="installation.html">installation guide</a> for requirements and provider
+        setup, or jump straight to the <a href="faq.html">FAQ</a>.
+      </p>
+
+      <div class="note">
+        Loop Engineer is an unofficial open-source project. OpenAI and Anthropic do not sponsor or
+        endorse it. Review generated code and provider output before using either.
+      </div>
+    </main>
+    <footer class="site">
+      <div class="inner">
+        <span>© 2026 Loop Engineer · MIT License</span>
+        <span>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/discussions">Discussions</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/issues">Issues</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -2,7 +2,9 @@
 
 # Loop Engineer
 
-**Run Claude Code, OpenAI Codex and local checks as one controlled software-development loop.**
+**Loop Engineer is an open-source, local-first multi-agent software-engineering orchestrator for Claude Code, Codex CLI, and isolated Git worktrees.**
+
+Run Claude Code, OpenAI Codex and local checks as one controlled software-development loop.
 
 [![CI](https://github.com/BotondCsereklye/LoopEngineer/actions/workflows/ci.yml/badge.svg)](https://github.com/BotondCsereklye/LoopEngineer/actions/workflows/ci.yml)
 [![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
@@ -10,7 +12,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-22c55e)](LICENSE)
 [![Local first](https://img.shields.io/badge/runtime-local--first-111827)](docs/security.md)
 
-[Demo](#demo) · [Screenshots](#screenshots) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Security](#security-boundaries) · [Documentation](#documentation)
+[Website](https://botondcsereklye.github.io/LoopEngineer/) · [Demo](#demo) · [Screenshots](#screenshots) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Security](#security-boundaries) · [Documentation](#documentation)
 
 </div>
 

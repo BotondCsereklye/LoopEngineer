@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>How Loop Engineer Works – Roles, Workflow, and Quality Gates</title>
+    <meta
+      name="description"
+      content="How Loop Engineer runs Claude Code, Codex CLI, and local tools through analyze, plan, implement, test, review, and decide phases with validated handoffs and quality gates."
+    />
+    <link rel="canonical" href="https://botondcsereklye.github.io/LoopEngineer/how-it-works.html" />
+    <meta property="og:type" content="article" />
+    <meta
+      property="og:title"
+      content="How Loop Engineer Works – Roles, Workflow, and Quality Gates"
+    />
+    <meta
+      property="og:description"
+      content="How Loop Engineer runs Claude Code, Codex CLI, and local tools through a controlled development loop with validated handoffs and quality gates."
+    />
+    <meta
+      property="og:url"
+      content="https://botondcsereklye.github.io/LoopEngineer/how-it-works.html"
+    />
+    <meta
+      property="og:image"
+      content="https://botondcsereklye.github.io/LoopEngineer/assets/social-preview.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="inner">
+        <a class="brand" href="./">Loop <span>Engineer</span></a>
+        <nav>
+          <a href="./">Home</a>
+          <a href="how-it-works.html" aria-current="page">How it works</a>
+          <a href="installation.html">Installation</a>
+          <a href="security.html">Security</a>
+          <a href="comparison.html">Comparison</a>
+          <a href="faq.html">FAQ</a>
+          <a href="changelog.html">Changelog</a>
+          <a href="documentation.html">Docs</a>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <h1>How Loop Engineer works</h1>
+      <p class="lead">
+        Loop Engineer runs a state machine, not a conversation. Each phase has one role, one
+        provider, and one narrow contract.
+      </p>
+
+      <h2>The controlled loop</h2>
+      <pre><code>ANALYZE → PLAN → IMPLEMENT → TEST → REVIEW → DECIDE
+                      ↑                    |
+                      └──────── FIX ←──────┘</code></pre>
+      <p>
+        A run starts from the current commit of your repository. The analyst and planner inspect the
+        code with read-only access. The implementer writes changes into an isolated Git worktree.
+        The tester runs your configured commands — build, test, lint, typecheck — without a shell.
+        The reviewer inspects the diff, and the final judge decides whether the quality gates are
+        satisfied. If tests fail or the review finds blocking issues, the fixer gets a bounded
+        number of correction cycles.
+      </p>
+
+      <h2>Roles and access</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Role</th>
+              <th>Default provider</th>
+              <th>Access</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Analyst</td>
+              <td>Claude Code or Codex</td>
+              <td>Read-only</td>
+            </tr>
+            <tr>
+              <td>Planner</td>
+              <td>Claude Code or Codex</td>
+              <td>Read-only</td>
+            </tr>
+            <tr>
+              <td>Implementer</td>
+              <td>Claude Code or Codex</td>
+              <td>Worktree write</td>
+            </tr>
+            <tr>
+              <td>Tester</td>
+              <td>Local command runner</td>
+              <td>Predefined commands</td>
+            </tr>
+            <tr>
+              <td>Reviewer</td>
+              <td>Claude Code or Codex</td>
+              <td>Read-only</td>
+            </tr>
+            <tr>
+              <td>Fixer</td>
+              <td>Claude Code or Codex</td>
+              <td>Worktree write</td>
+            </tr>
+            <tr>
+              <td>Final judge</td>
+              <td>Claude Code or Codex</td>
+              <td>Read-only</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Validated handoffs</h2>
+      <p>
+        Roles exchange structured JSON that is validated with Zod schemas before it becomes workflow
+        state. Raw chat transcripts never drive the loop. Repository content enters prompts inside
+        untrusted-data fences, so file contents are treated as data rather than instructions.
+      </p>
+
+      <h2>Stop conditions</h2>
+      <p>The orchestrator stops when one of the following happens:</p>
+      <ul>
+        <li>All quality gates pass (tests green, no blocking review findings).</li>
+        <li>The configured cycle or runtime limit expires.</li>
+        <li>Progress stalls between cycles.</li>
+        <li>A provider becomes unavailable, for example a session limit.</li>
+        <li>You cancel the run.</li>
+      </ul>
+
+      <h2>What you get at the end</h2>
+      <pre><code>.loop-engineer/
+├── runs/&lt;run-id&gt;/
+│   ├── report.md
+│   ├── report.json
+│   ├── task.md
+│   ├── config.snapshot.yml
+│   └── validated handoffs and provider events
+└── worktrees/&lt;run-id&gt;/
+    └── generated changes for human review</code></pre>
+      <p>
+        Nothing is committed and nothing is pushed. You inspect the worktree, take what you want,
+        and discard the rest with
+        <code>loopeng clean</code>. Continue with the <a href="security.html">security model</a> or
+        the <a href="comparison.html">comparison with plain agent sessions</a>.
+      </p>
+    </main>
+    <footer class="site">
+      <div class="inner">
+        <span>© 2026 Loop Engineer · MIT License</span>
+        <span>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/discussions">Discussions</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/issues">Issues</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loop Engineer FAQ – Providers, API Keys, Safety, and Installation</title>
+    <meta
+      name="description"
+      content="Frequently asked questions about Loop Engineer: what it is, how it works, supported AI providers, API keys, safety, isolation, and installation."
+    />
+    <link rel="canonical" href="https://botondcsereklye.github.io/LoopEngineer/faq.html" />
+    <meta property="og:type" content="article" />
+    <meta
+      property="og:title"
+      content="Loop Engineer FAQ – Providers, API Keys, Safety, and Installation"
+    />
+    <meta
+      property="og:description"
+      content="Frequently asked questions about Loop Engineer: what it is, how it works, supported AI providers, API keys, safety, isolation, and installation."
+    />
+    <meta property="og:url" content="https://botondcsereklye.github.io/LoopEngineer/faq.html" />
+    <meta
+      property="og:image"
+      content="https://botondcsereklye.github.io/LoopEngineer/assets/social-preview.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="assets/style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Loop Engineer?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Loop Engineer is an open-source, local-first multi-agent software-engineering orchestrator for Claude Code, Codex CLI, and isolated Git worktrees. It assigns AI agents and local tools to controlled roles — analyst, planner, implementer, tester, reviewer, fixer, and final judge — and runs them as one development loop."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does Loop Engineer work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "A run moves through analyze, plan, implement, test, review, and decide phases. Read-only roles inspect the repository, writing roles edit an isolated Git worktree, and a local command runner executes allowlisted test commands. Tests and review gates decide when the loop stops, and every run ends with reports and a reviewable worktree."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Loop Engineer open source?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Loop Engineer is MIT-licensed and developed openly at github.com/BotondCsereklye/LoopEngineer."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Loop Engineer require API keys?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Loop Engineer uses the official Claude Code and Codex CLIs that are already installed and authenticated on your machine. It has no API-key, password, or token field anywhere; provider login stays inside each official CLI."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does Loop Engineer isolate code changes?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Writing agents edit only a detached Git worktree managed by Loop Engineer. It never commits, never pushes, and never force-resets. You review the generated changes and decide what reaches your branch."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which AI providers does Loop Engineer support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Claude Code (Anthropic) and Codex CLI (OpenAI), plus a local predefined-command runner for tests. Providers can be mixed per role, for example Codex as implementer and Claude as reviewer."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Loop Engineer safe?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Loop Engineer enforces explicit boundaries: read-only roles, worktree-isolated writes, shell-free allowlisted commands, credential-free dashboard, prompt fencing for repository content, and secret redaction in logs. Redaction cannot recognize every custom secret format, so run reports should be treated like build logs and generated code should be reviewed before merging."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I install Loop Engineer?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Install Node.js 20+, Git, and at least one provider CLI. Then clone github.com/BotondCsereklye/LoopEngineer, run npm ci, npm run build, and npm link, and use loopeng init, loopeng doctor, and loopeng gui inside your Git repository."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body>
+    <header class="site">
+      <div class="inner">
+        <a class="brand" href="./">Loop <span>Engineer</span></a>
+        <nav>
+          <a href="./">Home</a>
+          <a href="how-it-works.html">How it works</a>
+          <a href="installation.html">Installation</a>
+          <a href="security.html">Security</a>
+          <a href="comparison.html">Comparison</a>
+          <a href="faq.html" aria-current="page">FAQ</a>
+          <a href="changelog.html">Changelog</a>
+          <a href="documentation.html">Docs</a>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <h1>Frequently asked questions</h1>
+
+      <h2 id="what-is-loop-engineer">What is Loop Engineer?</h2>
+      <p>
+        Loop Engineer is an open-source, local-first multi-agent software-engineering orchestrator
+        for Claude Code, Codex CLI, and isolated Git worktrees. It assigns AI agents and local tools
+        to controlled roles — analyst, planner, implementer, tester, reviewer, fixer, and final
+        judge — and runs them as one development loop with explicit quality gates.
+      </p>
+
+      <h2 id="how-does-loop-engineer-work">How does Loop Engineer work?</h2>
+      <p>
+        A run moves through <em>analyze → plan → implement → test → review → decide</em>, with a
+        bounded fix loop when tests fail or the review finds blocking issues. Read-only roles
+        inspect the repository, writing roles edit an isolated Git worktree, and a local command
+        runner executes allowlisted test commands. Details:
+        <a href="how-it-works.html">how it works</a>.
+      </p>
+
+      <h2 id="is-loop-engineer-open-source">Is Loop Engineer open source?</h2>
+      <p>
+        Yes. Loop Engineer is MIT-licensed and developed openly on
+        <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>. Issues, discussions,
+        and contributions are welcome.
+      </p>
+
+      <h2 id="does-loop-engineer-require-api-keys">Does Loop Engineer require API keys?</h2>
+      <p>
+        No. Loop Engineer drives the official Claude Code and Codex CLIs that are already installed
+        and authenticated on your machine. It has no API-key, password, OAuth-code, or token field
+        anywhere. Provider login — including API-key, SSO, device-code, and enterprise flows —
+        happens inside each official CLI, never inside Loop Engineer.
+      </p>
+
+      <h2 id="vs-claude-code-session">Loop Engineer vs. a normal Claude Code session</h2>
+      <p>
+        A normal session is one agent, one permission level, and one growing chat. Loop Engineer
+        separates analysis, implementation, testing, and review into distinct roles with minimal
+        permissions, validates every handoff, and lets objective gates — not the model — decide when
+        work is done. See the <a href="comparison.html">full comparison</a>.
+      </p>
+
+      <h2 id="vs-codex-cli">Loop Engineer vs. Codex CLI</h2>
+      <p>
+        Codex CLI is a provider inside Loop Engineer, not a competitor. Loop Engineer adds role
+        assignment, worktree isolation, a deterministic local tester, and cross-provider review on
+        top of it — for example Codex writes the code and Claude reviews it. See
+        <a href="comparison.html#vs-codex-cli">Loop Engineer vs. Codex CLI</a>.
+      </p>
+
+      <h2 id="how-does-loop-engineer-isolate-code-changes">
+        How does Loop Engineer isolate code changes?
+      </h2>
+      <p>
+        Writing agents edit only a detached Git worktree under
+        <code>.loop-engineer/worktrees/</code>. Loop Engineer never commits, never pushes, and never
+        force-resets. You inspect the worktree diff and decide what reaches your branch.
+        <code>loopeng clean</code> removes only managed worktrees and preserves dirty ones unless
+        forced.
+      </p>
+
+      <h2 id="which-ai-providers-does-loop-engineer-support">
+        Which AI providers does Loop Engineer support?
+      </h2>
+      <p>
+        Claude Code (Anthropic) and Codex CLI (OpenAI) as AI providers, plus a local
+        predefined-command runner for tests. Providers are configured per role, so you can mix them
+        freely within one run.
+      </p>
+
+      <h2 id="is-loop-engineer-safe">Is Loop Engineer safe?</h2>
+      <p>
+        Loop Engineer enforces explicit security boundaries: read-only roles for analysis and
+        review, worktree-isolated writes, shell-free allowlisted commands, a credential-free
+        loopback-only dashboard, prompt fencing for repository content, and secret redaction in logs
+        and reports. It is honest about limits too: redaction cannot recognize every custom secret
+        format, and no firewall can prove provider behavior. Read the
+        <a href="security.html">security model</a>.
+      </p>
+
+      <h2 id="how-do-i-install-loop-engineer">How do I install Loop Engineer?</h2>
+      <p>
+        Install Node.js 20+, Git, and at least one provider CLI, then clone the repository, run
+        <code>npm ci &amp;&amp; npm run build &amp;&amp; npm link</code>, and use
+        <code>loopeng init</code>, <code>loopeng doctor</code>, and <code>loopeng gui</code> inside
+        your Git repository. Full steps: <a href="installation.html">installation guide</a>.
+      </p>
+    </main>
+    <footer class="site">
+      <div class="inner">
+        <span>© 2026 Loop Engineer · MIT License</span>
+        <span>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/discussions">Discussions</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/issues">Issues</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

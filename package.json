@@ -1,9 +1,18 @@
 {
   "name": "loop-engineer",
   "version": "0.1.0",
-  "description": "Local-first multi-agent orchestrator: assign Claude Code, Codex CLI and local tools to software-engineering roles and run a controlled development loop in an isolated Git worktree.",
+  "description": "Loop Engineer is an open-source, local-first multi-agent software-engineering orchestrator for Claude Code, Codex CLI, and isolated Git worktrees.",
   "type": "module",
   "license": "MIT",
+  "author": "Botond Csereklye",
+  "homepage": "https://botondcsereklye.github.io/LoopEngineer/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BotondCsereklye/LoopEngineer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/BotondCsereklye/LoopEngineer/issues"
+  },
   "engines": {
     "node": ">=20"
   },
@@ -25,7 +34,10 @@
     "cli",
     "git-worktree",
     "local-first",
-    "developer-tools"
+    "developer-tools",
+    "agent-orchestration",
+    "software-engineering",
+    "multi-agent"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node scripts/copy-gui-assets.mjs",

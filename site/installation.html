@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Install Loop Engineer – Requirements and Setup Guide</title>
+    <meta
+      name="description"
+      content="How to install Loop Engineer on macOS, Linux, and Windows: Node.js 20+, Git, Claude Code or Codex CLI, then loopeng init, doctor, and gui."
+    />
+    <link rel="canonical" href="https://botondcsereklye.github.io/LoopEngineer/installation.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Install Loop Engineer – Requirements and Setup Guide" />
+    <meta
+      property="og:description"
+      content="How to install Loop Engineer on macOS, Linux, and Windows: Node.js 20+, Git, Claude Code or Codex CLI, then loopeng init, doctor, and gui."
+    />
+    <meta
+      property="og:url"
+      content="https://botondcsereklye.github.io/LoopEngineer/installation.html"
+    />
+    <meta
+      property="og:image"
+      content="https://botondcsereklye.github.io/LoopEngineer/assets/social-preview.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="inner">
+        <a class="brand" href="./">Loop <span>Engineer</span></a>
+        <nav>
+          <a href="./">Home</a>
+          <a href="how-it-works.html">How it works</a>
+          <a href="installation.html" aria-current="page">Installation</a>
+          <a href="security.html">Security</a>
+          <a href="comparison.html">Comparison</a>
+          <a href="faq.html">FAQ</a>
+          <a href="changelog.html">Changelog</a>
+          <a href="documentation.html">Docs</a>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <h1>Install Loop Engineer</h1>
+      <p class="lead">
+        Loop Engineer runs locally on macOS, Linux, and Windows. It needs Node.js, Git, and at least
+        one supported official provider CLI.
+      </p>
+
+      <h2>Requirements</h2>
+      <ul>
+        <li><strong>Node.js 20 or newer</strong></li>
+        <li><strong>Git</strong> with worktree support</li>
+        <li>
+          At least one provider CLI:
+          <a href="https://docs.anthropic.com/en/docs/claude-code">Claude Code</a>
+          or
+          <a href="https://github.com/openai/codex">OpenAI Codex CLI</a>
+        </li>
+      </ul>
+
+      <h2>Install from source</h2>
+      <pre><code>git clone https://github.com/BotondCsereklye/LoopEngineer.git
+cd LoopEngineer
+npm ci
+npm run build
+npm link</code></pre>
+      <p>
+        <code>npm link</code> puts the <code>loopeng</code> command on your PATH. An npm package
+        (<code>npm install -g loop-engineer</code>) is planned; until it ships, installing from
+        source is the supported path.
+      </p>
+
+      <h2>Set up a project</h2>
+      <p>Run these commands inside a Git repository with at least one commit:</p>
+      <pre><code>loopeng init      # writes loop-engineer.yml and detects project commands
+loopeng doctor    # checks Node.js, Git, providers, and write access
+loopeng gui       # opens the local dashboard at http://127.0.0.1:4317</code></pre>
+      <p>
+        <code>loopeng doctor</code> verifies Node.js, Git, worktree support, repository state,
+        provider installation and authentication, command detection, instruction files, and write
+        access — so problems surface before your first run.
+      </p>
+
+      <h2>Connect providers</h2>
+      <p>
+        The dashboard can start <code>claude auth login --claudeai</code> or
+        <code>codex login</code>. Each official CLI owns its browser flow, callback, and credential
+        store. Loop Engineer receives only installed-and-authenticated status — it has no password,
+        API-key, OAuth-code, or access-token field anywhere.
+      </p>
+
+      <h2>Run your first task</h2>
+      <pre><code>loopeng run --dry-run --task "Add input validation to the settings parser"
+loopeng run --task "Add input validation to the settings parser"</code></pre>
+      <p>
+        Start with <code>--dry-run</code> to preview the workflow without calling any provider. Then
+        read <a href="how-it-works.html">how the loop works</a> and the
+        <a href="security.html">security model</a>.
+      </p>
+    </main>
+    <footer class="site">
+      <div class="inner">
+        <span>© 2026 Loop Engineer · MIT License</span>
+        <span>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/discussions">Discussions</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/issues">Issues</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Loop Engineer vs. Claude Code Sessions and Codex CLI</title>
+    <meta
+      name="description"
+      content="How Loop Engineer differs from a normal Claude Code session and from using Codex CLI directly: roles instead of one chat, isolated worktrees, and objective quality gates."
+    />
+    <link rel="canonical" href="https://botondcsereklye.github.io/LoopEngineer/comparison.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Loop Engineer vs. Claude Code Sessions and Codex CLI" />
+    <meta
+      property="og:description"
+      content="How Loop Engineer differs from a normal Claude Code session and from using Codex CLI directly: roles instead of one chat, isolated worktrees, and objective quality gates."
+    />
+    <meta
+      property="og:url"
+      content="https://botondcsereklye.github.io/LoopEngineer/comparison.html"
+    />
+    <meta
+      property="og:image"
+      content="https://botondcsereklye.github.io/LoopEngineer/assets/social-preview.png"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="assets/style.css" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="inner">
+        <a class="brand" href="./">Loop <span>Engineer</span></a>
+        <nav>
+          <a href="./">Home</a>
+          <a href="how-it-works.html">How it works</a>
+          <a href="installation.html">Installation</a>
+          <a href="security.html">Security</a>
+          <a href="comparison.html" aria-current="page">Comparison</a>
+          <a href="faq.html">FAQ</a>
+          <a href="changelog.html">Changelog</a>
+          <a href="documentation.html">Docs</a>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <h1>Comparison</h1>
+      <p class="lead">
+        Loop Engineer does not replace Claude Code or Codex CLI. It orchestrates them — and adds the
+        structure a single agent session does not have.
+      </p>
+
+      <h2 id="vs-claude-code">Loop Engineer vs. a normal Claude Code session</h2>
+      <p>
+        A long agent chat mixes discovery, implementation, testing, and approval in one context.
+        Loop Engineer splits those responsibilities and gives each phase a narrow contract.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Concern</th>
+              <th>Single agent session</th>
+              <th>Loop Engineer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Agent access</td>
+              <td>One agent with one permission level for everything</td>
+              <td>
+                Read-only roles inspect the repository; writing roles edit only an isolated worktree
+              </td>
+            </tr>
+            <tr>
+              <td>State between steps</td>
+              <td>One growing chat transcript</td>
+              <td>Schema-validated JSON handoffs; transcripts never become workflow state</td>
+            </tr>
+            <tr>
+              <td>Command execution</td>
+              <td>Agent proposes shell commands as it goes</td>
+              <td>Local tester runs only configured allowlisted commands, without a shell</td>
+            </tr>
+            <tr>
+              <td>Definition of done</td>
+              <td>The model decides it is finished</td>
+              <td>Tests and review findings must satisfy explicit quality gates</td>
+            </tr>
+            <tr>
+              <td>Result</td>
+              <td>Edits land directly in your working tree</td>
+              <td>Markdown report, JSON report, and a reviewable worktree — no commit, no push</td>
+            </tr>
+            <tr>
+              <td>Review</td>
+              <td>Same context that wrote the code approves it</td>
+              <td>A separate reviewer role and final judge evaluate the diff</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="vs-codex-cli">Loop Engineer vs. Codex CLI</h2>
+      <p>
+        Codex CLI is one of Loop Engineer's providers, not a competitor. Used directly, Codex CLI
+        gives you a capable single-agent session. Loop Engineer assigns Codex CLI (and Claude Code)
+        to specific roles inside a controlled loop:
+      </p>
+      <ul>
+        <li>
+          You can mix providers per role — for example Codex as implementer and Claude as reviewer —
+          so the code is never approved by the model that wrote it.
+        </li>
+        <li>
+          Each role gets the minimum permission it needs: read-only for analysis and review,
+          worktree-write for implementation.
+        </li>
+        <li>
+          A local, deterministic command runner — not the model — executes your test suite and
+          reports results into the loop.
+        </li>
+        <li>
+          Provider-signaled session limits are detected and classified as provider unavailability,
+          so a run fails cleanly instead of silently degrading.
+        </li>
+      </ul>
+
+      <h2>When a plain session is the better tool</h2>
+      <p>
+        For a quick question, a one-line fix, or exploratory work, a direct Claude Code or Codex
+        session is faster and entirely sufficient. Loop Engineer earns its overhead when a task
+        needs implementation
+        <em>and</em> verification: a feature with tests, a refactor that must keep the suite green,
+        or changes you want reviewed before they touch your branch.
+      </p>
+      <p>
+        Next: read <a href="how-it-works.html">how the loop works</a> or the
+        <a href="faq.html">FAQ</a>.
+      </p>
+    </main>
+    <footer class="site">
+      <div class="inner">
+        <span>© 2026 Loop Engineer · MIT License</span>
+        <span>
+          <a href="https://github.com/BotondCsereklye/LoopEngineer">GitHub</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/discussions">Discussions</a>
+          ·
+          <a href="https://github.com/BotondCsereklye/LoopEngineer/issues">Issues</a>
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>
