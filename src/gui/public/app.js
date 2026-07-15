@@ -1,12 +1,12 @@
 /* global document, window, fetch, localStorage, matchMedia */
 
 const ROLE_META = {
-  analyst: ['Analyse', 'read-only'],
-  planner: ['Planung', 'read-only'],
-  implementer: ['Umsetzung', 'workspace-write'],
+  analyst: ['Analysis', 'read-only'],
+  planner: ['Planning', 'read-only'],
+  implementer: ['Implementation', 'workspace-write'],
   reviewer: ['Review', 'read-only'],
-  fixer: ['Korrektur', 'workspace-write'],
-  final_judge: ['Finale Prüfung', 'read-only'],
+  fixer: ['Fixing', 'workspace-write'],
+  final_judge: ['Final judgement', 'read-only'],
 };
 
 const state = { csrfToken: '', polling: null };
@@ -30,12 +30,12 @@ async function bootstrap() {
     fillConfig(data.config);
     renderDoctor(data.doctor);
     renderReports(data.reports);
-    setConnection('online', 'Lokal verbunden');
+    setConnection('online', 'Connected locally');
     const snapshot = await api('/api/run');
     renderRun(snapshot);
     if (snapshot.status === 'running') startPolling();
   } catch (error) {
-    setConnection('error', 'Verbindung fehlgeschlagen');
+    setConnection('error', 'Connection failed');
     showError(messageOf(error));
   }
 }
@@ -59,7 +59,7 @@ function renderRoleSkeletons() {
     controls.className = 'role-controls';
     controls.append(
       labeledSelect(`role-${role}-provider`, 'Provider', ['claude', 'codex']),
-      labeledInput(`role-${role}-model`, 'Modell', 'default'),
+      labeledInput(`role-${role}-model`, 'Model', 'default'),
     );
     card.append(header, controls);
     grid.append(card);
@@ -152,9 +152,9 @@ async function startRun(event) {
   event.preventDefault();
   showError('');
   const request = collectRequest();
-  if (!request.task) return showError('Bitte beschreibe zuerst eine Aufgabe.');
+  if (!request.task) return showError('Please describe a task first.');
   if (!request.qualityGates.blockSeverities.length)
-    return showError('Wähle mindestens einen blockierenden Schweregrad.');
+    return showError('Select at least one blocking severity.');
   setRunningControls(true);
   try {
     const snapshot = await api('/api/run', { method: 'POST', body: request });
@@ -197,11 +197,11 @@ function stopPolling() {
 
 function renderRun(snapshot) {
   const labels = {
-    idle: 'Bereit',
-    running: 'Läuft',
-    completed: 'Fertig',
-    failed: 'Fehler',
-    cancelled: 'Abgebrochen',
+    idle: 'Ready',
+    running: 'Running',
+    completed: 'Done',
+    failed: 'Failed',
+    cancelled: 'Cancelled',
   };
   const badge = $('run-status');
   badge.textContent = labels[snapshot.status] || snapshot.status;
@@ -212,7 +212,7 @@ function renderRun(snapshot) {
   summary.replaceChildren();
   if (!snapshot.id && !snapshot.result) {
     summary.className = 'empty-state';
-    summary.textContent = 'Noch kein Lauf gestartet.';
+    summary.textContent = 'No run started yet.';
   } else {
     summary.className = 'run-result';
     const title = document.createElement('strong');
@@ -231,12 +231,12 @@ function renderRun(snapshot) {
 }
 
 function resultDetail(snapshot) {
-  if (snapshot.status === 'running') return 'Agenten arbeiten kontrolliert an der Aufgabe.';
-  if (snapshot.result?.dryRun) return 'Dry Run abgeschlossen – es wurden keine Dateien verändert.';
+  if (snapshot.status === 'running') return 'Agents are working on the task in a controlled loop.';
+  if (snapshot.result?.dryRun) return 'Dry run finished — no files were changed.';
   const report = snapshot.result?.report;
   return report
-    ? `${report.status} · ${report.diff.filesChanged} Datei(en) geändert`
-    : 'Lauf beendet.';
+    ? `${report.status} · ${report.diff.filesChanged} file(s) changed`
+    : 'Run finished.';
 }
 
 function renderDoctor(checks) {
@@ -265,7 +265,7 @@ function renderReports(reports) {
   if (!reports.length) {
     const item = document.createElement('li');
     item.className = 'empty-state';
-    item.textContent = 'Noch keine Reports vorhanden.';
+    item.textContent = 'No reports yet.';
     list.append(item);
     return;
   }
@@ -288,7 +288,7 @@ function renderReports(reports) {
 async function openReport(runId) {
   try {
     const response = await fetch(`/api/reports/${encodeURIComponent(runId)}`);
-    if (!response.ok) throw new Error(`Report konnte nicht geladen werden (${response.status}).`);
+    if (!response.ok) throw new Error(`Could not load the report (${response.status}).`);
     $('report-viewer').textContent = await response.text();
     $('report-title').textContent = runId;
     $('report-dialog').showModal();
@@ -309,14 +309,14 @@ async function api(path, options = {}) {
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
     const details = payload.details?.map((item) => `${item.path}: ${item.message}`).join('; ');
-    throw new Error(details || payload.error || `Anfrage fehlgeschlagen (${response.status}).`);
+    throw new Error(details || payload.error || `Request failed (${response.status}).`);
   }
   return payload;
 }
 
 function setRunningControls(running) {
   $('start-button').disabled = running;
-  $('start-button').querySelector('span').textContent = running ? 'Loop läuft …' : 'Loop starten';
+  $('start-button').querySelector('span').textContent = running ? 'Loop running …' : 'Start loop';
   $('cancel-button').hidden = !running;
 }
 
@@ -333,7 +333,7 @@ function setConnection(status, label) {
 }
 
 function updateTaskCount() {
-  $('task-count').textContent = `${$('task').value.length.toLocaleString('de-CH')} / 20.000`;
+  $('task-count').textContent = `${$('task').value.length.toLocaleString('en-US')} / 20,000`;
 }
 
 function setupTheme() {

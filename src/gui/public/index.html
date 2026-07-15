@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de" data-theme="dark">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,9 +9,9 @@
     <script src="/app.js" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#workspace">Zum Arbeitsbereich</a>
+    <a class="skip-link" href="#workspace">Skip to workspace</a>
     <header class="topbar">
-      <a class="brand" href="/" aria-label="Loop Engineer Startseite">
+      <a class="brand" href="/" aria-label="Loop Engineer home">
         <svg aria-hidden="true" viewBox="0 0 32 32">
           <path d="M8 6h12a6 6 0 0 1 0 12H10" />
           <path d="m13 13-5 5 5 5" />
@@ -19,13 +19,13 @@
         <span>Loop Engineer</span>
       </a>
       <div class="topbar-actions">
-        <span class="connection" id="app-status"><span class="status-dot"></span>Verbinde …</span>
+        <span class="connection" id="app-status"><span class="status-dot"></span>Connecting …</span>
         <button
           class="icon-button"
           id="theme-toggle"
           type="button"
-          aria-label="Farbschema wechseln"
-          title="Farbschema wechseln"
+          aria-label="Toggle color scheme"
+          title="Toggle color scheme"
         >
           <svg aria-hidden="true" viewBox="0 0 24 24">
             <path
@@ -40,35 +40,35 @@
     <main id="workspace" class="layout">
       <section class="hero" aria-labelledby="page-title">
         <p class="eyebrow">LOCAL MULTI-AGENT WORKFLOW</p>
-        <h1 id="page-title">Eine Aufgabe. Ein kontrollierter Loop.</h1>
+        <h1 id="page-title">One task. One controlled loop.</h1>
         <p>
-          Stelle Rollen, Qualitätsprüfungen und Laufzeit zusammen. Änderungen bleiben im isolierten
-          Worktree – ohne automatischen Commit oder Push.
+          Compose roles, quality gates and runtime limits. Changes stay in an isolated Git worktree
+          — no automatic commit or push.
         </p>
-        <div class="root-line"><span>Projekt</span><code id="root-path">Wird geladen …</code></div>
+        <div class="root-line"><span>Project</span><code id="root-path">Loading …</code></div>
       </section>
 
-      <form id="run-form" class="builder" aria-label="Neuen Loop konfigurieren">
+      <form id="run-form" class="builder" aria-label="Configure a new loop">
         <section class="card task-card" aria-labelledby="task-title">
           <div class="section-heading">
             <div>
               <span class="step">01</span>
-              <h2 id="task-title">Aufgabe</h2>
+              <h2 id="task-title">Task</h2>
             </div>
-            <span class="required">Erforderlich</span>
+            <span class="required">Required</span>
           </div>
-          <label for="task">Was soll umgesetzt werden?</label>
+          <label for="task">What should be implemented?</label>
           <textarea
             id="task"
             name="task"
             rows="7"
             maxlength="20000"
             required
-            placeholder="Beschreibe Ziel, Akzeptanzkriterien und wichtige Grenzen …"
+            placeholder="Describe the goal, acceptance criteria and important boundaries …"
           ></textarea>
           <div class="field-footer">
-            <span>Je konkreter die Aufgabe, desto besser die Übergaben.</span
-            ><span id="task-count">0 / 20.000</span>
+            <span>The more concrete the task, the better the handoffs.</span
+            ><span id="task-count">0 / 20,000</span>
           </div>
         </section>
 
@@ -76,13 +76,13 @@
           <div class="section-heading">
             <div>
               <span class="step">02</span>
-              <h2 id="roles-title">Rollen</h2>
+              <h2 id="roles-title">Roles</h2>
             </div>
-            <span class="section-note">Tester läuft lokal</span>
+            <span class="section-note">Tester runs locally</span>
           </div>
           <p class="section-copy">
-            Wähle pro Denkschritt Provider und Modell. Die Schreibrechte der Rollen sind fest
-            abgesichert.
+            Pick a provider and model per thinking step. Role write permissions are locked down and
+            cannot be widened here.
           </p>
           <div id="roles-grid" class="roles-grid"></div>
         </section>
@@ -97,19 +97,19 @@
           <div class="choice-grid">
             <label class="toggle-row"
               ><span
-                ><strong>Tests müssen bestehen</strong
-                ><small>Blockiert die Freigabe bei fehlgeschlagenen Tests.</small></span
+                ><strong>Tests must pass</strong
+                ><small>Blocks approval while tests are failing.</small></span
               ><input id="require-tests" type="checkbox" checked
             /></label>
             <label class="toggle-row"
               ><span
-                ><strong>Review muss sauber sein</strong
-                ><small>Erfordert ein Review ohne blockierende Findings.</small></span
+                ><strong>Review must be clean</strong
+                ><small>Requires a review without blocking findings.</small></span
               ><input id="require-review" type="checkbox" checked
             /></label>
           </div>
           <fieldset class="severity-fieldset">
-            <legend>Blockierende Schweregrade</legend>
+            <legend>Blocking severities</legend>
             <div class="severity-options">
               <label
                 ><input type="checkbox" name="severity" value="critical" checked />Critical</label
@@ -123,16 +123,16 @@
 
         <details id="advanced" class="card advanced-card">
           <summary>
-            <span><span class="step">04</span><strong>Workflow &amp; Befehle</strong></span
-            ><span class="summary-note">Erweitert</span>
+            <span><span class="step">04</span><strong>Workflow &amp; commands</strong></span
+            ><span class="summary-note">Advanced</span>
           </summary>
           <div class="advanced-content">
             <div class="number-grid">
               <label for="max-cycles"
-                >Maximale Zyklen<input id="max-cycles" type="number" min="1" max="20" value="3"
+                >Maximum cycles<input id="max-cycles" type="number" min="1" max="20" value="3"
               /></label>
               <label for="max-runtime"
-                >Laufzeit in Minuten<input
+                >Runtime in minutes<input
                   id="max-runtime"
                   type="number"
                   min="1"
@@ -142,15 +142,13 @@
             </div>
             <label class="toggle-row compact"
               ><span
-                ><strong>Bei fehlendem Fortschritt stoppen</strong
-                ><small>Verhindert wiederholte Korrekturen ohne messbare Verbesserung.</small></span
+                ><strong>Stop when no progress is made</strong
+                ><small>Prevents repeated corrections without measurable improvement.</small></span
               ><input id="stop-no-progress" type="checkbox" checked
             /></label>
             <fieldset class="commands-fieldset">
-              <legend>Lokale Prüfkommandos</legend>
-              <p>
-                Nur einzelne, vorab geprüfte Befehle – keine Pipes, Verkettungen oder Umleitungen.
-              </p>
+              <legend>Local check commands</legend>
+              <p>Single, pre-approved commands only — no pipes, chaining or redirections.</p>
               <div class="command-grid">
                 <label for="command-build"
                   >Build<input
@@ -191,22 +189,20 @@
 
         <section class="launch-card" aria-labelledby="launch-title">
           <div>
-            <h2 id="launch-title">Bereit für den Loop?</h2>
+            <h2 id="launch-title">Ready for the loop?</h2>
             <label class="dry-run"
               ><input id="dry-run" type="checkbox" checked /><span
-                ><strong>Zuerst als Dry Run</strong
+                ><strong>Dry run first</strong
                 ><small
-                  >Validiert die Konfiguration ohne Provider oder Dateisystemänderungen.</small
+                  >Validates the configuration without providers or filesystem changes.</small
                 ></span
               ></label
             >
           </div>
           <div class="launch-actions">
-            <button id="cancel-button" class="button secondary" type="button" hidden>
-              Abbrechen
-            </button>
+            <button id="cancel-button" class="button secondary" type="button" hidden>Cancel</button>
             <button id="start-button" class="button primary" type="submit">
-              <span>Loop starten</span>
+              <span>Start loop</span>
               <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
             </button>
           </div>
@@ -214,28 +210,28 @@
         </section>
       </form>
 
-      <aside class="sidebar" aria-label="Laufstatus und Diagnose">
+      <aside class="sidebar" aria-label="Run status and diagnostics">
         <section class="card status-card" aria-labelledby="run-status-title">
           <div class="section-heading small">
-            <h2 id="run-status-title">Aktueller Lauf</h2>
-            <span id="run-status" class="badge idle">Bereit</span>
+            <h2 id="run-status-title">Current run</h2>
+            <span id="run-status" class="badge idle">Ready</span>
           </div>
-          <div id="run-summary" class="empty-state">Noch kein Lauf gestartet.</div>
+          <div id="run-summary" class="empty-state">No run started yet.</div>
           <ol id="event-log" class="event-log" aria-live="polite"></ol>
         </section>
         <section class="card" aria-labelledby="doctor-title">
           <div class="section-heading small">
-            <h2 id="doctor-title">Systemcheck</h2>
+            <h2 id="doctor-title">System check</h2>
             <span id="doctor-summary" class="muted">…</span>
           </div>
           <ul id="doctor-list" class="check-list">
-            <li>Prüfungen werden geladen …</li>
+            <li>Loading checks …</li>
           </ul>
         </section>
         <section class="card" aria-labelledby="reports-title">
-          <div class="section-heading small"><h2 id="reports-title">Letzte Reports</h2></div>
+          <div class="section-heading small"><h2 id="reports-title">Recent reports</h2></div>
           <ul id="reports-list" class="reports-list">
-            <li>Reports werden geladen …</li>
+            <li>Loading reports …</li>
           </ul>
         </section>
       </aside>
@@ -244,7 +240,7 @@
     <dialog id="report-dialog" aria-labelledby="report-title">
       <div class="dialog-heading">
         <h2 id="report-title">Run Report</h2>
-        <button id="close-report" class="icon-button" type="button" aria-label="Report schließen">
+        <button id="close-report" class="icon-button" type="button" aria-label="Close report">
           ×
         </button>
       </div>
