@@ -55,7 +55,7 @@ Set blocking severities, require passing tests and start with a safe dry run.
 
 ![Loop Engineer quality gates and launch controls](demo/screenshots/03-quality-gates.jpg)
 
-These screenshots come from the running local dashboard against a disposable Git fixture. They contain no repository source or credentials.
+These screenshots come from the running local dashboard. They contain no repository source or credentials.
 
 ## Why Loop Engineer
 
