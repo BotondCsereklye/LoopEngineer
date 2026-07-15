@@ -20,7 +20,7 @@
     "node": ">=20"
   },
   "bin": {
-    "loopeng": "./dist/index.js"
+    "loopeng": "dist/index.js"
   },
   "main": "./dist/index.js",
   "files": [

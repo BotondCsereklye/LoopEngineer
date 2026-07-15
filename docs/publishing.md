@@ -19,6 +19,14 @@ npm view loop-engineer name version dist-tags --json
 
 An npm `E404` response means the package has no public release at the time of the check. It does not reserve the name.
 
+`npm login` authenticates the CLI but does not satisfy the publish security requirement by itself. Enable two-factor authentication on the npm account before the first publish:
+
+```bash
+npm profile enable-2fa auth-and-writes
+```
+
+npm will open the browser and ask you to register a security key or platform authenticator. A granular access token with write access and **Bypass 2FA** can also publish, but interactive 2FA avoids storing a long-lived publishing credential.
+
 ## Prepare the release
 
 Update `package.json`, `package-lock.json` and `CHANGELOG.md` in the same pull request. The CLI version comes from `package.json`, so these commands must print the same version:
@@ -69,6 +77,8 @@ npm view loop-engineer name version dist-tags --json
 ```
 
 `git status --short` must print nothing. npm does not allow a publisher to replace an existing version. Fix a failed release with a new patch version instead of reusing the old version number.
+
+If npm returns `E403` with “Two-factor authentication ... is required,” finish the account 2FA setup and run the same publish command again. npm prompts for the second factor during the publish. Do not place a one-time code or access token in the repository, shell scripts or documentation.
 
 Create and push the Git tag only after npm confirms the release:
 
