@@ -1,6 +1,6 @@
 import type { ZodType, ZodTypeDef } from 'zod';
 import type { RoleName } from '../domain/types.js';
-import { InternalError, UserAbortError } from '../domain/errors.js';
+import { InternalError, ProviderUnavailableError, UserAbortError } from '../domain/errors.js';
 import type { RoleConfig } from '../config/schema.js';
 import { firewallPreamble } from '../security/context-firewall.js';
 import { assertRolePermission } from '../security/permissions.js';
@@ -62,6 +62,11 @@ export async function runStructuredRole<T, TInput>(
       `Provider "${options.provider.id}" timed out in role "${options.role}" after ${options.timeoutMs} ms`,
     );
   }
+  if (response.error && isProviderUnavailableMessage(response.text)) {
+    throw new ProviderUnavailableError(
+      `Provider "${options.provider.id}" cannot serve requests right now (role "${options.role}"): ${response.text.trim().slice(0, 200)}`,
+    );
+  }
   if (response.exitCode !== 0 && response.text.trim() === '') {
     throw new InternalError(
       `Provider "${options.provider.id}" failed in role "${options.role}" (exit ${response.exitCode})`,
@@ -79,6 +84,17 @@ export async function runStructuredRole<T, TInput>(
 
   const parsed = parseHandoff(response.text, schema, `${options.role} (${options.provider.id})`);
   return { handoff: parsed.value, response, validation: parsed.outcome };
+}
+
+/**
+ * Recognizes provider-signaled outages (subscription/session limits, missing
+ * login). Only consulted when the CLI itself reported an error — plain agent
+ * text can never trigger this, so repository content cannot spoof it.
+ */
+export function isProviderUnavailableMessage(text: string): boolean {
+  return /session limit|usage limit|rate limit|quota exceeded|not logged in|please (log|sign) ?in|run \/login|credit balance/i.test(
+    text,
+  );
 }
 
 /** Assembles the final prompt from firewall preamble, role template and sections. */

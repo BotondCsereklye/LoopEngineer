@@ -100,7 +100,11 @@ export class CodexProvider implements AgentProvider {
       model: request.model,
       sanitizedCommand: `${this.binary} ${args.join(' ')} (prompt via stdin, ${request.prompt.length} chars)`,
       timedOut: result.timedOut,
-      error: result.timedOut ? 'Provider call timed out' : undefined,
+      error: result.timedOut
+        ? 'Provider call timed out'
+        : result.exitCode !== 0
+          ? `Codex CLI exited with code ${result.exitCode}`
+          : undefined,
     };
   }
 }

@@ -82,7 +82,11 @@ export class ClaudeProvider implements AgentProvider {
       model: request.model,
       sanitizedCommand: `${this.binary} ${args.join(' ')} (prompt via stdin, ${request.prompt.length} chars)`,
       timedOut: result.timedOut,
-      error: result.timedOut ? 'Provider call timed out' : undefined,
+      error: result.timedOut
+        ? 'Provider call timed out'
+        : parsed.isError || result.exitCode !== 0
+          ? 'Claude CLI reported an error result'
+          : undefined,
     };
   }
 }
