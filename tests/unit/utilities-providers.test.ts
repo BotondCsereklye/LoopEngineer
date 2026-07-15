@@ -1,4 +1,4 @@
-import { chmod, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { chmod, mkdtemp, readFile, realpath, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -13,6 +13,7 @@ import { exitCodeForError, statusForError, ConfigurationError } from '../../src/
 import { CancellationController } from '../../src/execution/cancellation.js';
 import { Deadline } from '../../src/execution/timeout.js';
 import {
+  git,
   gitVersion,
   hasCommits,
   isGitRepository,
@@ -25,6 +26,10 @@ import { parseClaudeOutput } from '../../src/providers/claude/parser.js';
 import { CodexProvider } from '../../src/providers/codex/adapter.js';
 import { parseCodexOutput } from '../../src/providers/codex/parser.js';
 import { permissionProfile, assertRolePermission } from '../../src/security/permissions.js';
+import { isProviderUnavailableMessage, runStructuredRole } from '../../src/roles/common.js';
+import { ProviderUnavailableError } from '../../src/domain/errors.js';
+import { finalDecisionSchema } from '../../src/handoff/schemas.js';
+import type { AgentProvider } from '../../src/providers/provider.js';
 import type { RunReport } from '../../src/reports/types.js';
 
 describe('utility modules', () => {
@@ -58,6 +63,43 @@ describe('utility modules', () => {
     expect(await detectCommands(empty)).toEqual({});
     await writeFile(path.join(empty, 'Cargo.toml'), '[package]', 'utf8');
     expect(await detectCommands(empty)).toEqual({ build: 'cargo build', test: 'cargo test' });
+
+    const goRoot = await mkdtemp(path.join(tmpdir(), 'loopeng-go-'));
+    await writeFile(path.join(goRoot, 'go.mod'), 'module fixture', 'utf8');
+    expect(await detectCommands(goRoot)).toEqual({
+      build: 'go build ./...',
+      test: 'go test ./...',
+    });
+
+    const pyRoot = await mkdtemp(path.join(tmpdir(), 'loopeng-py-'));
+    await writeFile(path.join(pyRoot, 'pyproject.toml'), '[project]', 'utf8');
+    expect(await detectCommands(pyRoot)).toEqual({ test: 'pytest' });
+
+    const pnpmRoot = await mkdtemp(path.join(tmpdir(), 'loopeng-pnpm-'));
+    await writeFile(
+      path.join(pnpmRoot, 'package.json'),
+      JSON.stringify({ scripts: { test: 'vitest', typecheck: 'tsc --noEmit' } }),
+      'utf8',
+    );
+    await writeFile(path.join(pnpmRoot, 'pnpm-lock.yaml'), '', 'utf8');
+    expect(await detectCommands(pnpmRoot)).toEqual({
+      install: 'pnpm install',
+      test: 'pnpm test',
+      typecheck: 'pnpm run typecheck',
+    });
+
+    const yarnRoot = await mkdtemp(path.join(tmpdir(), 'loopeng-yarn-'));
+    await writeFile(
+      path.join(yarnRoot, 'package.json'),
+      JSON.stringify({ scripts: { test: 'vitest' } }),
+      'utf8',
+    );
+    await writeFile(path.join(yarnRoot, 'yarn.lock'), '', 'utf8');
+    expect(await detectCommands(yarnRoot)).toEqual({ install: 'yarn install', test: 'yarn test' });
+
+    const brokenRoot = await mkdtemp(path.join(tmpdir(), 'loopeng-broken-'));
+    await writeFile(path.join(brokenRoot, 'package.json'), '{not json', 'utf8');
+    expect(await detectCommands(brokenRoot)).toEqual({});
   });
 
   it('maps errors, deadlines, cancellation and permissions', () => {
@@ -88,6 +130,13 @@ describe('utility modules', () => {
     expect(parseClaudeOutput('{"result":"done"}').text).toBe('done');
     expect(parseClaudeOutput('{"value":1}').structured).toEqual({ value: 1 });
     expect(parseClaudeOutput('plain').text).toBe('plain');
+    expect(parseClaudeOutput('plain').isError).toBe(false);
+    expect(
+      parseClaudeOutput('{"is_error":true,"result":"You have hit your session limit"}').isError,
+    ).toBe(true);
+    expect(parseClaudeOutput('{"subtype":"error_during_execution","result":"x"}').isError).toBe(
+      true,
+    );
     const codex = [
       '{"msg":{"type":"agent_message","message":"one"}}',
       '{"type":"item.completed","item":{"type":"agent_message","text":"two"}}',
@@ -106,12 +155,21 @@ describe('utility modules', () => {
   });
 
   it('checks repository helpers and doctor output', async () => {
-    expect(await gitVersion(process.cwd())).toBeTruthy();
-    expect(await isGitRepository(process.cwd())).toBe(true);
-    expect(await repositoryRoot(process.cwd())).toBe(process.cwd());
-    expect(await hasCommits(process.cwd())).toBe(false);
-    expect(await supportsWorktrees(process.cwd())).toBe(true);
-    const checks = await runDoctor(process.cwd());
+    // Fresh fixture repo: assertions must not depend on the host repository's state.
+    const root = await realpath(await mkdtemp(path.join(tmpdir(), 'loopeng-repo-')));
+    await git(['init'], root);
+    await git(['config', 'user.email', 'test@example.com'], root);
+    await git(['config', 'user.name', 'Test'], root);
+    expect(await gitVersion(root)).toBeTruthy();
+    expect(await isGitRepository(root)).toBe(true);
+    expect(await repositoryRoot(root)).toBe(root);
+    expect(await hasCommits(root)).toBe(false);
+    await writeFile(path.join(root, 'README.md'), 'fixture', 'utf8');
+    await git(['add', 'README.md'], root);
+    await git(['commit', '-m', 'fixture'], root);
+    expect(await hasCommits(root)).toBe(true);
+    expect(await supportsWorktrees(root)).toBe(true);
+    const checks = await runDoctor(root);
     expect(checks.some((check) => check.label === 'Node.js')).toBe(true);
     expect(renderDoctor(checks)).toContain('Loop Engineer Doctor');
   });
@@ -136,12 +194,70 @@ describe('provider adapters', () => {
     };
     expect((await claude.run(request)).text).toBe('{"ok":true}');
     expect((await codex.run(request)).text).toBe('{"ok":true}');
+
+    // Write roles map onto edit permissions / sandbox flags and explicit models.
+    const writeRequest = {
+      ...request,
+      role: 'implementer' as const,
+      permissionMode: 'workspace-write' as const,
+      model: 'custom-model',
+    };
+    const claudeWrite = await claude.run(writeRequest);
+    expect(claudeWrite.sanitizedCommand).toContain('--permission-mode acceptEdits');
+    expect(claudeWrite.sanitizedCommand).toContain('--model custom-model');
+    expect(claudeWrite.sanitizedCommand).not.toContain('Bash');
+    const codexWrite = await codex.run(writeRequest);
+    expect(codexWrite.sanitizedCommand).toContain('--sandbox workspace-write');
+    expect(codexWrite.sanitizedCommand).toContain('--model custom-model');
     expect((await new ClaudeProvider('/definitely/missing').checkAvailability()).installed).toBe(
       false,
     );
     expect((await new CodexProvider('/definitely/missing').checkAvailability()).installed).toBe(
       false,
     );
+  });
+
+  it('classifies provider-signaled limits as unavailability, not invalid output', async () => {
+    expect(isProviderUnavailableMessage("You've hit your session limit · resets 10:40pm")).toBe(
+      true,
+    );
+    expect(isProviderUnavailableMessage('Please run /login to continue')).toBe(true);
+    expect(isProviderUnavailableMessage('{"ok":true}')).toBe(false);
+
+    const limited: AgentProvider = {
+      id: 'claude',
+      async checkAvailability() {
+        return { installed: true, details: '' };
+      },
+      async run() {
+        return {
+          exitCode: 1,
+          text: "You've hit your session limit · resets 10:40pm",
+          stderr: '',
+          durationMs: 1,
+          provider: 'claude',
+          sanitizedCommand: 'claude -p (elided)',
+          timedOut: false,
+          error: 'Claude CLI reported an error result',
+        };
+      },
+    };
+    await expect(
+      runStructuredRole(
+        {
+          provider: limited,
+          role: 'planner',
+          roleConfig: { provider: 'claude', model: 'default', permissions: 'read-only' },
+          prompt: 'p',
+          cwd: process.cwd(),
+          task: 't',
+          context: {},
+          outputSchema: 'FinalDecision',
+          timeoutMs: 1_000,
+        },
+        finalDecisionSchema,
+      ),
+    ).rejects.toBeInstanceOf(ProviderUnavailableError);
   });
 });
 

@@ -4,6 +4,7 @@ import { defaultConfig, renderDefaultConfigYaml } from '../../src/config/default
 import { validateConfig } from '../../src/config/loader.js';
 import { parseNumstat } from '../../src/git/diff.js';
 import { parseHandoff } from '../../src/handoff/validator.js';
+import { ProviderOutputError } from '../../src/domain/errors.js';
 import { finalDecisionSchema } from '../../src/handoff/schemas.js';
 import { createDefaultRegistry, providerForRole } from '../../src/providers/registry.js';
 import { checkCommandStructure, validateCommand } from '../../src/security/command-policy.js';
@@ -34,6 +35,26 @@ describe('configuration and safety primitives', () => {
     const raw =
       '```json\n{"readyForHumanReview":false,"summary":"x","acceptanceCriteriaSatisfied":[],"remainingIssues":[],"recommendedNextAction":"fix",}\n```';
     expect(parseHandoff(raw, finalDecisionSchema, 'test').outcome).toBe('repaired');
+  });
+
+  it('extracts prose-wrapped JSON with quoted braces and aborts on unrepairable output', () => {
+    const wrapped =
+      'Result below:\n{"readyForHumanReview":true,"summary":"has \\"{ and }\\" inside","acceptanceCriteriaSatisfied":[],"remainingIssues":[],"recommendedNextAction":"ship"}\ntrailing prose';
+    const parsed = parseHandoff(wrapped, finalDecisionSchema, 'test');
+    expect(parsed.outcome).toBe('repaired');
+    expect(parsed.value.summary).toContain('{ and }');
+
+    try {
+      parseHandoff('no json here at all', finalDecisionSchema, 'test');
+      expect.unreachable('must throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ProviderOutputError);
+      expect((error as ProviderOutputError).rawOutput).toBe('no json here at all');
+    }
+    // Truncated object: repair cannot balance it and must not invent values.
+    expect(() => parseHandoff('{"readyForHumanReview":true', finalDecisionSchema, 'test')).toThrow(
+      ProviderOutputError,
+    );
   });
 
   it('blocks shell syntax and commands outside the exact allowlist', () => {
