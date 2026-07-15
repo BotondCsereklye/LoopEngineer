@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Loop Engineer</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Zum Arbeitsbereich</a>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Loop Engineer Startseite">
+        <svg aria-hidden="true" viewBox="0 0 32 32">
+          <path d="M8 6h12a6 6 0 0 1 0 12H10" />
+          <path d="m13 13-5 5 5 5" />
+        </svg>
+        <span>Loop Engineer</span>
+      </a>
+      <div class="topbar-actions">
+        <span class="connection" id="app-status"><span class="status-dot"></span>Verbinde …</span>
+        <button
+          class="icon-button"
+          id="theme-toggle"
+          type="button"
+          aria-label="Farbschema wechseln"
+          title="Farbschema wechseln"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path
+              d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"
+            />
+            <circle cx="12" cy="12" r="4" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="workspace" class="layout">
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow">LOCAL MULTI-AGENT WORKFLOW</p>
+        <h1 id="page-title">Eine Aufgabe. Ein kontrollierter Loop.</h1>
+        <p>
+          Stelle Rollen, Qualitätsprüfungen und Laufzeit zusammen. Änderungen bleiben im isolierten
+          Worktree – ohne automatischen Commit oder Push.
+        </p>
+        <div class="root-line"><span>Projekt</span><code id="root-path">Wird geladen …</code></div>
+      </section>
+
+      <form id="run-form" class="builder" aria-label="Neuen Loop konfigurieren">
+        <section class="card task-card" aria-labelledby="task-title">
+          <div class="section-heading">
+            <div>
+              <span class="step">01</span>
+              <h2 id="task-title">Aufgabe</h2>
+            </div>
+            <span class="required">Erforderlich</span>
+          </div>
+          <label for="task">Was soll umgesetzt werden?</label>
+          <textarea
+            id="task"
+            name="task"
+            rows="7"
+            maxlength="20000"
+            required
+            placeholder="Beschreibe Ziel, Akzeptanzkriterien und wichtige Grenzen …"
+          ></textarea>
+          <div class="field-footer">
+            <span>Je konkreter die Aufgabe, desto besser die Übergaben.</span
+            ><span id="task-count">0 / 20.000</span>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="roles-title">
+          <div class="section-heading">
+            <div>
+              <span class="step">02</span>
+              <h2 id="roles-title">Rollen</h2>
+            </div>
+            <span class="section-note">Tester läuft lokal</span>
+          </div>
+          <p class="section-copy">
+            Wähle pro Denkschritt Provider und Modell. Die Schreibrechte der Rollen sind fest
+            abgesichert.
+          </p>
+          <div id="roles-grid" class="roles-grid"></div>
+        </section>
+
+        <section class="card" aria-labelledby="gates-title">
+          <div class="section-heading">
+            <div>
+              <span class="step">03</span>
+              <h2 id="gates-title">Quality Gates</h2>
+            </div>
+          </div>
+          <div class="choice-grid">
+            <label class="toggle-row"
+              ><span
+                ><strong>Tests müssen bestehen</strong
+                ><small>Blockiert die Freigabe bei fehlgeschlagenen Tests.</small></span
+              ><input id="require-tests" type="checkbox" checked
+            /></label>
+            <label class="toggle-row"
+              ><span
+                ><strong>Review muss sauber sein</strong
+                ><small>Erfordert ein Review ohne blockierende Findings.</small></span
+              ><input id="require-review" type="checkbox" checked
+            /></label>
+          </div>
+          <fieldset class="severity-fieldset">
+            <legend>Blockierende Schweregrade</legend>
+            <div class="severity-options">
+              <label
+                ><input type="checkbox" name="severity" value="critical" checked />Critical</label
+              >
+              <label><input type="checkbox" name="severity" value="high" checked />High</label>
+              <label><input type="checkbox" name="severity" value="medium" />Medium</label>
+              <label><input type="checkbox" name="severity" value="low" />Low</label>
+            </div>
+          </fieldset>
+        </section>
+
+        <details id="advanced" class="card advanced-card">
+          <summary>
+            <span><span class="step">04</span><strong>Workflow &amp; Befehle</strong></span
+            ><span class="summary-note">Erweitert</span>
+          </summary>
+          <div class="advanced-content">
+            <div class="number-grid">
+              <label for="max-cycles"
+                >Maximale Zyklen<input id="max-cycles" type="number" min="1" max="20" value="3"
+              /></label>
+              <label for="max-runtime"
+                >Laufzeit in Minuten<input
+                  id="max-runtime"
+                  type="number"
+                  min="1"
+                  max="1440"
+                  value="60"
+              /></label>
+            </div>
+            <label class="toggle-row compact"
+              ><span
+                ><strong>Bei fehlendem Fortschritt stoppen</strong
+                ><small>Verhindert wiederholte Korrekturen ohne messbare Verbesserung.</small></span
+              ><input id="stop-no-progress" type="checkbox" checked
+            /></label>
+            <fieldset class="commands-fieldset">
+              <legend>Lokale Prüfkommandos</legend>
+              <p>
+                Nur einzelne, vorab geprüfte Befehle – keine Pipes, Verkettungen oder Umleitungen.
+              </p>
+              <div class="command-grid">
+                <label for="command-build"
+                  >Build<input
+                    id="command-build"
+                    type="text"
+                    maxlength="500"
+                    placeholder="npm run build"
+                    spellcheck="false"
+                /></label>
+                <label for="command-test"
+                  >Test<input
+                    id="command-test"
+                    type="text"
+                    maxlength="500"
+                    placeholder="npm test"
+                    spellcheck="false"
+                /></label>
+                <label for="command-lint"
+                  >Lint<input
+                    id="command-lint"
+                    type="text"
+                    maxlength="500"
+                    placeholder="npm run lint"
+                    spellcheck="false"
+                /></label>
+                <label for="command-typecheck"
+                  >Typecheck<input
+                    id="command-typecheck"
+                    type="text"
+                    maxlength="500"
+                    placeholder="npm run typecheck"
+                    spellcheck="false"
+                /></label>
+              </div>
+            </fieldset>
+          </div>
+        </details>
+
+        <section class="launch-card" aria-labelledby="launch-title">
+          <div>
+            <h2 id="launch-title">Bereit für den Loop?</h2>
+            <label class="dry-run"
+              ><input id="dry-run" type="checkbox" checked /><span
+                ><strong>Zuerst als Dry Run</strong
+                ><small
+                  >Validiert die Konfiguration ohne Provider oder Dateisystemänderungen.</small
+                ></span
+              ></label
+            >
+          </div>
+          <div class="launch-actions">
+            <button id="cancel-button" class="button secondary" type="button" hidden>
+              Abbrechen
+            </button>
+            <button id="start-button" class="button primary" type="submit">
+              <span>Loop starten</span>
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+            </button>
+          </div>
+          <p id="form-error" class="form-error" role="alert" hidden></p>
+        </section>
+      </form>
+
+      <aside class="sidebar" aria-label="Laufstatus und Diagnose">
+        <section class="card status-card" aria-labelledby="run-status-title">
+          <div class="section-heading small">
+            <h2 id="run-status-title">Aktueller Lauf</h2>
+            <span id="run-status" class="badge idle">Bereit</span>
+          </div>
+          <div id="run-summary" class="empty-state">Noch kein Lauf gestartet.</div>
+          <ol id="event-log" class="event-log" aria-live="polite"></ol>
+        </section>
+        <section class="card" aria-labelledby="doctor-title">
+          <div class="section-heading small">
+            <h2 id="doctor-title">Systemcheck</h2>
+            <span id="doctor-summary" class="muted">…</span>
+          </div>
+          <ul id="doctor-list" class="check-list">
+            <li>Prüfungen werden geladen …</li>
+          </ul>
+        </section>
+        <section class="card" aria-labelledby="reports-title">
+          <div class="section-heading small"><h2 id="reports-title">Letzte Reports</h2></div>
+          <ul id="reports-list" class="reports-list">
+            <li>Reports werden geladen …</li>
+          </ul>
+        </section>
+      </aside>
+    </main>
+
+    <dialog id="report-dialog" aria-labelledby="report-title">
+      <div class="dialog-heading">
+        <h2 id="report-title">Run Report</h2>
+        <button id="close-report" class="icon-button" type="button" aria-label="Report schließen">
+          ×
+        </button>
+      </div>
+      <pre id="report-viewer"></pre>
+    </dialog>
+  </body>
+</html>
