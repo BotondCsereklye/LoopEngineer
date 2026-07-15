@@ -1,19 +1,74 @@
+<div align="center">
+
 # Loop Engineer
 
-Assign Claude, Codex and local tools to different software-engineering roles and run a controlled development loop in an isolated Git worktree.
+**Run Claude Code, OpenAI Codex and local checks as one controlled software-development loop.**
 
-Use your existing authenticated coding-agent CLIs. No API keys, cloud account or automatic push required.
+[![CI](https://github.com/BotondCsereklye/LoopEngineer/actions/workflows/ci.yml/badge.svg)](https://github.com/BotondCsereklye/LoopEngineer/actions/workflows/ci.yml)
+[![Node.js 20+](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-22c55e)](LICENSE)
+[![Local first](https://img.shields.io/badge/runtime-local--first-111827)](docs/security.md)
+
+[Demo](#demo) · [Screenshots](#screenshots) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Security](#security-boundaries) · [Documentation](#documentation)
+
+</div>
+
+Loop Engineer gives each agent one role, validates every handoff and keeps writing agents inside an isolated Git worktree. Tests and review gates decide when the loop stops. You inspect the result before anything reaches your branch.
 
 > [!WARNING]
-> Loop Engineer is an unofficial open-source project. It has no affiliation with OpenAI or Anthropic. Review agent output and the generated diff before you copy changes into your branch.
+> Loop Engineer is an unofficial open-source project. OpenAI and Anthropic do not sponsor or endorse it. Review generated code and provider output before using either.
 
-## Problem
+## Demo
 
-Coding agents can edit quickly, but a long unstructured chat mixes planning, implementation and approval. It can also expose a repository to prompt injection or let a test command exceed the authority you intended to grant.
+Check both provider CLIs without exposing credentials:
 
-Loop Engineer assigns one role per step. Each role receives a bounded prompt, a permission profile and a Zod-validated JSON handoff. Writing roles work in a detached Git worktree. The tester runs commands from an exact allowlist.
+![Loop Engineer provider connection demo](demo/clips/01-provider-connections.gif)
 
-## Workflow
+Preview the workflow, then run the controlled loop:
+
+![Loop Engineer dry run and controlled workflow demo](demo/clips/02-controlled-loop.gif)
+
+[Watch the full 23-second MP4](demo/loop-engineer-demo.mp4) or browse the [demo notes and reproducible renderer](demo/README.md).
+
+The recordings use scripted fixture output. They never read a real `~/.claude`, `~/.codex`, repository file, environment secret or provider session.
+
+## Screenshots
+
+### Dashboard and provider connections
+
+See the local project, provider connection states and current-run panel before starting a task.
+
+![Loop Engineer dashboard and provider connections](demo/screenshots/01-dashboard-overview.jpg)
+
+### Model and intelligence controls
+
+Choose Claude Code or OpenAI Codex, then select the model and intelligence level for each role.
+
+![Loop Engineer model and intelligence controls](demo/screenshots/02-model-intelligence.jpg)
+
+### Quality gates and launch controls
+
+Set blocking severities, require passing tests and start with a safe dry run.
+
+![Loop Engineer quality gates and launch controls](demo/screenshots/03-quality-gates.jpg)
+
+These screenshots come from the running local dashboard against a disposable Git fixture. They contain no repository source or credentials.
+
+## Why Loop Engineer
+
+A long agent chat mixes discovery, implementation, testing and approval in one context. Loop Engineer splits those responsibilities and gives each phase a narrow contract.
+
+| Concern      | Loop Engineer behavior                                                                          |
+| ------------ | ----------------------------------------------------------------------------------------------- |
+| Agent access | Read-only roles inspect the repository. Writing roles edit only an isolated worktree.           |
+| Handoffs     | Zod validates structured JSON between roles. Raw chat transcripts do not become workflow state. |
+| Commands     | The local tester runs only configured allowlisted commands without a shell.                     |
+| Quality      | Tests and review findings must satisfy explicit gates.                                          |
+| Delivery     | Every run ends with a Markdown report, JSON report and reviewable worktree.                     |
+| Git          | Loop Engineer creates no commit and sends no push.                                              |
+
+## How it works
 
 ```text
 ANALYZE -> PLAN -> IMPLEMENT -> TEST -> REVIEW -> DECIDE
@@ -22,23 +77,33 @@ ANALYZE -> PLAN -> IMPLEMENT -> TEST -> REVIEW -> DECIDE
                                   +------ FIX
 ```
 
-The orchestrator stops when tests and review gates pass, the cycle limit expires, runtime expires, progress stops, a provider fails, or the user cancels.
+| Role        | Default provider     | Access              |
+| ----------- | -------------------- | ------------------- |
+| Analyst     | Claude Code or Codex | Read-only           |
+| Planner     | Claude Code or Codex | Read-only           |
+| Implementer | Claude Code or Codex | Worktree write      |
+| Tester      | Local command runner | Predefined commands |
+| Reviewer    | Claude Code or Codex | Read-only           |
+| Fixer       | Claude Code or Codex | Worktree write      |
+| Final judge | Claude Code or Codex | Read-only           |
 
-## Installation
+The orchestrator stops when the quality gates pass, a configured cycle or runtime limit expires, progress stalls, a provider fails, or you cancel the run.
 
-Requirements: Node.js 20+, Git, and at least one supported official agent CLI.
+## Quick start
+
+### Install
+
+Requirements: Node.js 20+, Git and at least one supported official provider CLI.
 
 ```bash
-git clone <your-fork-or-clone-url>
-cd loop-engineer
-npm install
+git clone https://github.com/BotondCsereklye/LoopEngineer.git
+cd LoopEngineer
+npm ci
 npm run build
 npm link
 ```
 
-Loop Engineer uses the sessions managed by `claude` and `codex`. Sign in through those CLIs. Do not paste provider passwords or browser tokens into Loop Engineer.
-
-## 30-second quickstart
+### Configure a project
 
 Run these commands inside a Git repository with at least one commit:
 
@@ -48,33 +113,29 @@ loopeng doctor
 loopeng gui
 ```
 
-The dashboard opens at `http://127.0.0.1:4317`. Configure the task, role providers, models, quality gates and test commands, then start with a dry run. Loop Engineer does not commit or push.
+The dashboard opens at `http://127.0.0.1:4317`. Connect the installed provider CLIs, then choose a provider, model and intelligence level for every role. Codex model choices include Sol, Terra and Luna; Claude uses its supported CLI aliases. During a real run, **Current run** shows the active role, provider, model, intelligence level and elapsed thinking time. Session-limit errors include the affected provider, role and reset time when the CLI supplies one.
 
-Prefer the terminal? Run `loopeng run --task "Add input validation to the settings parser"` instead.
+Prefer the terminal:
 
-## Commands
-
-```text
-loopeng init
-loopeng doctor
-loopeng gui
-loopeng gui --no-open --port 4318
-loopeng run --task "Add password reset"
-loopeng run --task-file task.md
-loopeng run --config loop-engineer.yml --task "Fix the parser"
-loopeng run --dry-run --task "Preview this workflow"
-loopeng status
-loopeng report <run-id>
-loopeng clean [--force]
+```bash
+loopeng run --dry-run --task "Add input validation to the settings parser"
+loopeng run --task "Add input validation to the settings parser"
 ```
 
-`gui` starts a local-only dashboard bound to `127.0.0.1`. It reads the same `loop-engineer.yml` as the CLI and keeps the role permission boundaries fixed. Stop it with `Ctrl+C`.
+## Provider connections
 
-`doctor` checks Node, Git, repository state, worktree support, provider installation, command detection, instruction files and write access. It reports an unknown authentication state when an official CLI offers no dependable probe.
+The dashboard can start `claude auth login --claudeai` or `codex login`. Each official CLI owns its browser flow, callback and credential store. Loop Engineer receives only installed and authenticated status.
+
+The dashboard contains no password, API-key, OAuth-code or access-token field. Configure API-key, SSO, device-code and enterprise automation flows through the provider's official CLI.
+
+Read [provider setup and smoke tests](docs/providers.md).
 
 ## Configuration
 
-`loopeng init` writes `loop-engineer.yml` and detects common build commands. Zod rejects unknown keys, invalid role permissions and unsafe tester assignments.
+`loopeng init` writes `loop-engineer.yml` and detects common project commands. The schema rejects unknown keys, invalid permissions and unsafe tester assignments.
+
+<details>
+<summary>Example configuration</summary>
 
 ```yaml
 version: 1
@@ -113,44 +174,78 @@ security:
   redact_secrets: true
 ```
 
-See [configuration](docs/configuration.md) for validation rules.
+</details>
 
-## Roles and providers
+See the [configuration reference](docs/configuration.md) for every field and validation rule.
 
-The MVP includes `analyst`, `planner`, `implementer`, `reviewer`, `tester`, `fixer` and `final_judge`. Claude Code and Codex CLI handle agent roles. The local provider runs test commands without a shell.
+## Commands
 
-Provider flags can change between CLI releases. Run `loopeng doctor` after you upgrade a provider. See [providers](docs/providers.md).
+```text
+loopeng init
+loopeng doctor
+loopeng gui [--no-open] [--port <number>]
+loopeng run --task "Add password reset"
+loopeng run --task-file task.md
+loopeng run --config loop-engineer.yml --task "Fix the parser"
+loopeng run --dry-run --task "Preview this workflow"
+loopeng status
+loopeng report <run-id>
+loopeng clean [--force]
+```
 
-## Security model
+`doctor` checks Node.js, Git, worktree support, repository state, provider installation and authentication, command detection, instruction files and write access.
 
-- Repository text enters prompts inside untrusted-data fences.
-- Read-only roles receive read-only provider permissions.
-- Implementer and fixer receive workspace write access inside the isolated worktree.
-- The tester rejects shell chaining, pipes, redirection, command substitution and denied binaries.
-- Logs and reports redact common token, key and password patterns before storage.
-- Loop Engineer issues no commit, push, force reset or destructive clean command.
+## Security boundaries
 
-Redaction catches common patterns, not every secret format. Run reports can contain sensitive source context. Keep `.loop-engineer/` local and review [the security model](docs/security.md).
+- Repository content enters prompts inside untrusted-data fences.
+- Analyst, planner, reviewer and final judge receive read-only provider permissions.
+- Implementer and fixer write only inside the managed worktree.
+- The tester rejects chaining, pipes, redirects, command substitution, denied binaries and destructive Git commands.
+- Provider login stays inside the official CLI. The dashboard API never handles credentials.
+- Logs and reports redact common key, token and password formats before storage.
+- Loop Engineer never commits, pushes, force-resets or runs a destructive clean command.
+
+Redaction cannot recognize every custom secret format. Keep `.loop-engineer/` private and treat run reports like build logs. Read the full [security model](docs/security.md) before using the tool on sensitive code.
 
 ## Worktrees and reports
 
-Loop Engineer creates `.loop-engineer/worktrees/<run-id>` from the current commit. Existing modifications in your main checkout stay untouched. `clean` removes worktrees with Loop Engineer marker files and refuses dirty worktrees unless you pass `--force`.
+Each real run starts from the current commit and creates:
 
-Each completed run writes Markdown and JSON under `.loop-engineer/runs/<run-id>/`, together with configuration, task, handoffs, provider events, tests and review results.
+```text
+.loop-engineer/
+├── runs/<run-id>/
+│   ├── report.md
+│   ├── report.json
+│   ├── task.md
+│   ├── config.snapshot.yml
+│   └── validated handoffs and provider events
+└── worktrees/<run-id>/
+    └── generated changes for human review
+```
+
+`loopeng clean` removes only marked managed worktrees. It preserves dirty worktrees unless you pass `--force`.
+
+## Documentation
+
+| Guide                                  | Covers                                       |
+| -------------------------------------- | -------------------------------------------- |
+| [Architecture](docs/architecture.md)   | Components, trust boundaries and data flow   |
+| [Workflow](docs/workflow.md)           | State machine, loops and stop conditions     |
+| [GUI](docs/gui.md)                     | Local dashboard and provider connections     |
+| [Providers](docs/providers.md)         | Claude Code, Codex and the local runner      |
+| [Configuration](docs/configuration.md) | Schema, commands and quality gates           |
+| [Security](docs/security.md)           | Process, prompt, credential and Git controls |
+| [Development](docs/development.md)     | Build, test and contribution workflow        |
+| [Roadmap](docs/roadmap.md)             | Planned scope and exclusions                 |
 
 ## Limitations
 
-- The MVP supports Claude Code, Codex CLI and a local command runner.
-- Provider CLI output formats may change.
-- The context firewall and redactor reduce risk but cannot prove that a provider will behave safely.
-- Loop Engineer leaves the worktree for human inspection and does not apply its diff to your branch.
+- Provider command flags and machine-readable output can change between CLI releases.
+- The context firewall and redactor reduce risk; they cannot prove provider behavior.
+- Loop Engineer leaves generated changes in the worktree for manual inspection.
 - Windows support depends on Git worktree behavior and provider CLI support on the host.
 
-## Roadmap
-
-Planned work includes Gemini support, optional MCP integration, richer progress evidence and opt-in packaging as a single executable. Cloud accounts, browser automation, automatic pull requests and automatic pushes remain outside the MVP. See [roadmap](docs/roadmap.md).
-
-## Development and contributing
+## Development
 
 ```bash
 npm ci
@@ -161,11 +256,7 @@ npm run test:coverage
 npm run build
 ```
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) and [development notes](docs/development.md). Suggested GitHub topics: `ai-agents`, `claude-code`, `codex-cli`, `developer-tools`, `git-worktree`, `local-first`, `typescript`.
-
-## Disclaimer
-
-You control the provider sessions and repository. Check provider terms, usage limits, generated code, licenses and security impact before adopting a change. Loop Engineer does not bypass provider authentication or usage limits.
+Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md) and the [Code of Conduct](CODE_OF_CONDUCT.md) before contributing.
 
 ## License
 

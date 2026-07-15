@@ -79,6 +79,9 @@ export class CodexProvider implements AgentProvider {
     if (request.model && request.model !== 'default') {
       args.push('--model', request.model);
     }
+    if (request.effort && request.effort !== 'auto') {
+      args.push('--config', `model_reasoning_effort="${request.effort}"`);
+    }
     args.push('-');
 
     const result = await runProcess({

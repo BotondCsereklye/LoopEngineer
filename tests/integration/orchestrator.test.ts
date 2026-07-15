@@ -112,7 +112,20 @@ describe('orchestrator', () => {
     }
     const registry: ProviderRegistry = new Map([['fake', fake]]);
 
-    const result = await orchestrate({ task: 'Create fixture', repoRoot: root, config, registry });
+    const activities: Array<{ state: string; role: string; provider: string }> = [];
+    const result = await orchestrate({
+      task: 'Create fixture',
+      repoRoot: root,
+      config,
+      registry,
+      logger: {
+        info() {},
+        warn() {},
+        activity(activity) {
+          activities.push(activity);
+        },
+      },
+    });
 
     expect(result.report.status).toBe('ready-for-human-review');
     expect(result.report.diff.changedFiles).toContain('implemented.txt');
@@ -121,6 +134,12 @@ describe('orchestrator', () => {
       'done\n',
     );
     expect(fake.roles).toEqual(['analyst', 'planner', 'implementer', 'reviewer', 'final_judge']);
+    expect(activities).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ state: 'thinking', role: 'analyst', provider: 'fake' }),
+        expect.objectContaining({ state: 'completed', role: 'analyst', provider: 'fake' }),
+      ]),
+    );
   });
 
   it('dry-run performs no filesystem or provider changes', async () => {

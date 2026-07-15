@@ -298,6 +298,134 @@ a:focus-visible {
   color: var(--muted);
   font-size: 0.88rem;
 }
+.text-button {
+  min-height: 38px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+.text-button:hover {
+  border-color: var(--line-strong);
+}
+
+.providers-card {
+  border-color: color-mix(in srgb, var(--info) 28%, var(--line));
+}
+.provider-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.provider-placeholder {
+  grid-column: 1 / -1;
+  padding: 18px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.provider-connection-card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.provider-connection-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.provider-identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.provider-identity > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.provider-identity h3 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+.provider-identity span:not(.provider-mark) {
+  overflow: hidden;
+  color: var(--muted);
+  font:
+    0.66rem ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.provider-mark {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  color: var(--text);
+  font-weight: 750;
+}
+.provider-mark.claude {
+  background: color-mix(in srgb, #d97757 18%, var(--surface));
+}
+.provider-mark.codex {
+  background: color-mix(in srgb, var(--accent) 15%, var(--surface));
+}
+.provider-state {
+  flex: 0 0 auto;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font:
+    700 0.59rem/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  text-transform: uppercase;
+}
+.provider-state.connected {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
+.provider-state.connecting {
+  background: color-mix(in srgb, var(--info) 14%, transparent);
+  color: var(--info);
+}
+.provider-state.disconnected,
+.provider-state.unavailable {
+  background: color-mix(in srgb, var(--warning) 13%, transparent);
+  color: var(--warning);
+}
+.provider-connection-card > p {
+  min-height: 2.7em;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.provider-connect-button {
+  width: 100%;
+  min-height: 42px;
+  font-size: 0.78rem;
+}
+.providers-card .form-error {
+  margin-top: 14px;
+}
 label {
   color: var(--text);
   font-size: 0.86rem;
@@ -364,7 +492,7 @@ input::placeholder {
 }
 .role-controls {
   display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: 8px;
 }
 .role-controls label {
@@ -587,6 +715,137 @@ input[type='checkbox'] {
   background: color-mix(in srgb, var(--danger) 13%, transparent);
   color: var(--danger);
 }
+.run-provider-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+.run-provider {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font:
+    650 0.61rem/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+}
+.mini-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.run-provider.connected .mini-dot {
+  background: var(--accent);
+}
+.run-provider.connecting .mini-dot {
+  background: var(--info);
+}
+.run-provider.disconnected .mini-dot,
+.run-provider.unavailable .mini-dot {
+  background: var(--warning);
+}
+.run-provider.limited {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--line));
+  color: var(--danger);
+}
+.run-provider.limited .mini-dot {
+  background: var(--danger);
+}
+.run-issue {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 13px;
+  border: 1px solid color-mix(in srgb, var(--danger) 42%, var(--line));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface-2));
+}
+.run-issue[hidden] {
+  display: none;
+}
+.run-issue strong {
+  color: var(--danger);
+  font-size: 0.84rem;
+}
+.run-issue > span {
+  color: var(--muted);
+  font:
+    0.65rem ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+}
+.run-issue p {
+  margin: 5px 0 0;
+  color: var(--text);
+  font-size: 0.74rem;
+}
+.active-agent {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--info) 38%, var(--line));
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--info) 9%, var(--surface-2)),
+    var(--surface-2)
+  );
+}
+.active-agent[hidden] {
+  display: none;
+}
+.active-agent > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.active-agent strong {
+  font-size: 0.84rem;
+}
+.thinking-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--info);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--info) 50%, transparent);
+  animation: thinking-pulse 1.5s ease-out infinite;
+}
+.active-meta,
+.active-elapsed {
+  color: var(--muted);
+  font:
+    0.66rem/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.active-elapsed {
+  color: var(--info);
+}
+.active-agent small {
+  color: var(--muted);
+  font-size: 0.66rem;
+  line-height: 1.35;
+}
+@keyframes thinking-pulse {
+  70% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
 .empty-state {
   padding: 18px 0;
   color: var(--muted);
@@ -783,11 +1042,15 @@ dialog::backdrop {
   .sidebar > .card {
     padding: 20px;
   }
+  .provider-grid,
   .roles-grid,
   .choice-grid,
   .number-grid,
   .command-grid,
   .sidebar {
+    grid-template-columns: 1fr;
+  }
+  .role-controls {
     grid-template-columns: 1fr;
   }
   .launch-card {

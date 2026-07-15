@@ -7,12 +7,12 @@ const validRequest = {
   dryRun: true,
   workflow: { maxCycles: 2, maxRuntimeMinutes: 30, stopOnNoProgress: true },
   roles: {
-    analyst: { provider: 'codex', model: 'default' },
-    planner: { provider: 'claude', model: 'sonnet' },
-    implementer: { provider: 'codex', model: 'default' },
-    reviewer: { provider: 'claude', model: 'default' },
-    fixer: { provider: 'codex', model: 'default' },
-    final_judge: { provider: 'claude', model: 'default' },
+    analyst: { provider: 'codex', model: 'gpt-5.6-terra', effort: 'medium' },
+    planner: { provider: 'claude', model: 'sonnet', effort: 'high' },
+    implementer: { provider: 'codex', model: 'gpt-5.6-sol', effort: 'ultra' },
+    reviewer: { provider: 'claude', model: 'opus', effort: 'xhigh' },
+    fixer: { provider: 'codex', model: 'gpt-5.6-sol', effort: 'max' },
+    final_judge: { provider: 'claude', model: 'best', effort: 'max' },
   },
   qualityGates: {
     requireTestsPass: true,
@@ -31,6 +31,7 @@ describe('GUI run request', () => {
     expect(config.roles.planner).toMatchObject({
       provider: 'claude',
       model: 'sonnet',
+      effort: 'high',
       permissions: 'read-only',
     });
     expect(config.roles.tester).toMatchObject({
@@ -54,5 +55,26 @@ describe('GUI run request', () => {
       }).success,
     ).toBe(false);
     expect(guiRunRequestSchema.safeParse({ ...validRequest, surprise: true }).success).toBe(false);
+  });
+
+  it('rejects model and intelligence combinations unsupported by the selected provider', () => {
+    expect(
+      guiRunRequestSchema.safeParse({
+        ...validRequest,
+        roles: {
+          ...validRequest.roles,
+          analyst: { provider: 'claude', model: 'gpt-5.6-sol', effort: 'high' },
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      guiRunRequestSchema.safeParse({
+        ...validRequest,
+        roles: {
+          ...validRequest.roles,
+          planner: { provider: 'claude', model: 'haiku', effort: 'max' },
+        },
+      }).success,
+    ).toBe(false);
   });
 });

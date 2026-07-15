@@ -6,6 +6,7 @@ import { firewallPreamble } from '../security/context-firewall.js';
 import { assertRolePermission } from '../security/permissions.js';
 import { parseHandoff, type ValidationOutcome } from '../handoff/validator.js';
 import type { AgentProvider, AgentRequest, AgentResponse } from '../providers/provider.js';
+import type { Logger } from '../logging/logger.js';
 
 /** Version stamp for all role prompt templates. Bump on breaking prompt changes. */
 export const PROMPT_VERSION = 1;
@@ -21,6 +22,7 @@ export interface RoleRunOptions {
   outputSchema: string;
   timeoutMs: number;
   signal?: AbortSignal;
+  logger?: Logger;
 }
 
 export interface RoleRunResult<T> {
@@ -49,6 +51,10 @@ export async function runStructuredRole<T, TInput>(
     outputSchema: options.outputSchema,
     timeoutMs: options.timeoutMs,
     model: options.roleConfig.model === 'default' ? undefined : options.roleConfig.model,
+    effort:
+      options.roleConfig.effort === undefined || options.roleConfig.effort === 'auto'
+        ? undefined
+        : options.roleConfig.effort,
     signal: options.signal,
   };
 
